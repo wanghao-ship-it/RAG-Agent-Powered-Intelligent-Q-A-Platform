@@ -11,9 +11,11 @@ import (
 	"github.com/Tencent/WeKnora/internal/models/chat"
 	"github.com/Tencent/WeKnora/internal/types"
 	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
 )
 
 type autoTagRecordingQueue struct {
@@ -33,11 +35,14 @@ func confidencePtr(value float64) *float64 { return &value }
 
 type autoTagKnowledgeRepo struct {
 	interfaces.KnowledgeRepository
-	knowledge *types.Knowledge
-	existing  map[string][]*types.KnowledgeTag
-	added     []string
-	addErr    error
-	writeCtx  context.Context
+	knowledge         *types.Knowledge
+	existing          map[string][]*types.KnowledgeTag
+	added             []string
+	bindings          []types.KnowledgeTagBinding
+	activeBindings    []types.KnowledgeTagBinding
+	candidateBindings []types.KnowledgeTagBinding
+	addErr            error
+	writeCtx          context.Context
 }
 
 func (r *autoTagKnowledgeRepo) GetKnowledgeByIDOnly(context.Context, string) (*types.Knowledge, error) {
@@ -50,14 +55,23 @@ func (r *autoTagKnowledgeRepo) GetKnowledgeTags(
 	return r.existing, nil
 }
 
-func (r *autoTagKnowledgeRepo) AddKnowledgeTagRelations(
-	ctx context.Context, _ uint64, _, _ string, tagIDs []string,
+func (r *autoTagKnowledgeRepo) PersistKnowledgeTagClassification(
+	ctx context.Context, _ uint64, _, _ string,
+	activeBindings []types.KnowledgeTagBinding, candidateBindings []types.KnowledgeTagBinding,
 ) error {
 	r.writeCtx = ctx
 	if r.addErr != nil {
 		return r.addErr
 	}
-	r.added = append(r.added, tagIDs...)
+	for _, binding := range activeBindings {
+		r.bindings = append(r.bindings, binding)
+		r.activeBindings = append(r.activeBindings, binding)
+		r.added = append(r.added, binding.TagID)
+	}
+	for _, binding := range candidateBindings {
+		r.bindings = append(r.bindings, binding)
+		r.candidateBindings = append(r.candidateBindings, binding)
+	}
 	return nil
 }
 
@@ -79,6 +93,56 @@ func (r *autoTagTagRepo) ListByKB(
 		tags = tags[:page.Limit()]
 	}
 	return tags, total, nil
+}
+
+func (r *autoTagTagRepo) ListActiveByKB(
+	_ context.Context, _ uint64, _ string, page *types.Pagination,
+) ([]*types.KnowledgeTag, int64, error) {
+	active := make([]*types.KnowledgeTag, 0, len(r.tags))
+	for _, tag := range r.tags {
+		if tag != nil && (tag.Status == "" || tag.Status == types.KnowledgeTagStatusActive) {
+			active = append(active, tag)
+		}
+	}
+	total := r.total
+	if total == 0 {
+		total = int64(len(active))
+	}
+	if page != nil && page.Limit() > 0 && len(active) > page.Limit() {
+		active = active[:page.Limit()]
+	}
+	return active, total, nil
+}
+
+func (r *autoTagTagRepo) GetByName(
+	_ context.Context, _ uint64, _ string, name string,
+) (*types.KnowledgeTag, error) {
+	normalized := types.NormalizeKnowledgeTagName(name)
+	for _, tag := range r.tags {
+		if tag != nil && types.NormalizeKnowledgeTagName(tag.Name) == normalized {
+			return tag, nil
+		}
+	}
+	return nil, gorm.ErrRecordNotFound
+}
+
+type autoTagLifecycleService struct {
+	interfaces.KnowledgeTagLifecycleService
+	tagRepo *autoTagTagRepo
+	created []*types.KnowledgeTag
+}
+
+func (s *autoTagLifecycleService) CreateCandidate(
+	_ context.Context, kbID, name, description string, confidence float64,
+) (*types.KnowledgeTag, error) {
+	tag := &types.KnowledgeTag{
+		ID: uuid.NewString(), KnowledgeBaseID: kbID, Name: name, Description: description,
+		Status: types.KnowledgeTagStatusPending, Source: types.KnowledgeTagSourceAuto,
+		Confidence: confidence,
+	}
+	s.tagRepo.tags = append(s.tagRepo.tags, tag)
+	s.created = append(s.created, tag)
+	return tag, nil
 }
 
 type autoTagKBService struct {
@@ -137,6 +201,8 @@ func (m *autoTagChatModel) GetModelID() string   { return "auto-tag" }
 type autoTagFixture struct {
 	service   *KnowledgeAutoTagService
 	repo      *autoTagKnowledgeRepo
+	tagRepo   *autoTagTagRepo
+	lifecycle *autoTagLifecycleService
 	chatModel *autoTagChatModel
 }
 
@@ -150,20 +216,23 @@ func newAutoTagFixture(t *testing.T, response string, opts ...func(*autoTagFixtu
 		existing: map[string][]*types.KnowledgeTag{},
 	}
 	chatModel := &autoTagChatModel{response: response}
-	fixture := &autoTagFixture{repo: repo, chatModel: chatModel}
+	tagRepo := &autoTagTagRepo{tags: []*types.KnowledgeTag{
+		{ID: "tag-a", Name: "HR"},
+		{ID: "tag-b", Name: "Finance"},
+	}}
+	lifecycle := &autoTagLifecycleService{tagRepo: tagRepo}
+	fixture := &autoTagFixture{repo: repo, tagRepo: tagRepo, lifecycle: lifecycle, chatModel: chatModel}
 	fixture.service = &KnowledgeAutoTagService{
-		knowledgeRepo: repo,
-		tagRepo: &autoTagTagRepo{tags: []*types.KnowledgeTag{
-			{ID: "tag-a", Name: "HR"},
-			{ID: "tag-b", Name: "Finance"},
-		}},
+		knowledgeRepo:       repo,
+		tagRepo:             tagRepo,
+		tagLifecycleService: lifecycle,
 		kbService: &autoTagKBService{kb: &types.KnowledgeBase{
 			ID: "kb", TenantID: 7, Type: types.KnowledgeBaseTypeDocument,
 			SummaryModelID: "model-1",
 			AutoTagConfig:  &types.AutoTagConfig{Enabled: true, MaxTags: 3},
 		}},
 		chunkRepo: &autoTagChunkRepo{chunks: []*types.Chunk{
-			{ChunkType: types.ChunkTypeText, Content: "quarterly HR policy", StartAt: 1},
+			{ID: "chunk-1", ChunkType: types.ChunkTypeText, Content: "quarterly HR policy", StartAt: 1},
 		}},
 		modelService: &stubModelService{chatModel: chatModel},
 	}
@@ -183,9 +252,13 @@ func (f *autoTagFixture) handle(t *testing.T) error {
 }
 
 func TestAutoTagHandleAttachesMatchedTags(t *testing.T) {
-	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9}]}`)
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`)
 	require.NoError(t, fixture.handle(t))
 	assert.Equal(t, []string{"tag-a"}, fixture.repo.added)
+	require.Len(t, fixture.repo.bindings, 1)
+	assert.Equal(t, "chunk-1", fixture.repo.bindings[0].ChunkID)
+	assert.Equal(t, "quarterly HR policy", fixture.repo.bindings[0].Evidence)
+	assert.Equal(t, autoTagExtractorVersion, fixture.repo.bindings[0].ExtractorVersion)
 	require.Zero(t, types.CallerFromContext(fixture.repo.writeCtx).TenantID)
 	require.NoError(t, access.RequireKBWrite(fixture.repo.writeCtx, &types.KnowledgeBase{ID: "kb", TenantID: 7}))
 	require.Error(t, access.RequireKBWrite(fixture.repo.writeCtx, &types.KnowledgeBase{ID: "other", TenantID: 7}))
@@ -194,7 +267,7 @@ func TestAutoTagHandleAttachesMatchedTags(t *testing.T) {
 // A missing confidence must not be read as zero: models frequently omit the
 // field while still returning a deliberate selection.
 func TestAutoTagHandleKeepsMatchesWithoutConfidence(t *testing.T) {
-	fixture := newAutoTagFixture(t, `{"matches":[{"index":2}]}`)
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":2,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`)
 	require.NoError(t, fixture.handle(t))
 	assert.Equal(t, []string{"tag-b"}, fixture.repo.added)
 }
@@ -203,7 +276,7 @@ func TestAutoTagHandleKeepsMatchesWithoutConfidence(t *testing.T) {
 // the previous LastIndexAny-based extraction truncated into invalid JSON.
 func TestAutoTagHandleParsesJSONWrappedInProse(t *testing.T) {
 	fixture := newAutoTagFixture(t,
-		"Here you go: {\"matches\":[{\"index\":1,\"confidence\":0.88}]} — see section [1].")
+		"Here you go: {\"matches\":[{\"index\":1,\"confidence\":0.88,\"evidence_chunk_index\":1,\"evidence_quote\":\"quarterly HR policy\"}]} — see section [1].")
 	require.NoError(t, fixture.handle(t))
 	assert.Equal(t, []string{"tag-a"}, fixture.repo.added)
 }
@@ -211,9 +284,46 @@ func TestAutoTagHandleParsesJSONWrappedInProse(t *testing.T) {
 // An ordinal outside the candidate list is a model hallucination and must not
 // resolve to an unrelated tag.
 func TestAutoTagHandleDropsOutOfRangeIndex(t *testing.T) {
-	fixture := newAutoTagFixture(t, `{"matches":[{"index":99,"confidence":0.99}]}`)
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":99,"confidence":0.99,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`)
 	require.NoError(t, fixture.handle(t))
 	assert.Empty(t, fixture.repo.added)
+}
+
+func TestAutoTagHandleNeverClassifiesPendingCandidates(t *testing.T) {
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`)
+	fixture.service.tagRepo = &autoTagTagRepo{tags: []*types.KnowledgeTag{
+		{ID: "pending-tag", Name: "Pending", Status: types.KnowledgeTagStatusPending},
+		{ID: "active-tag", Name: "Active", Status: types.KnowledgeTagStatusActive},
+	}}
+	require.NoError(t, fixture.handle(t))
+	assert.Equal(t, []string{"active-tag"}, fixture.repo.added)
+	assert.NotContains(t, fixture.chatModel.messages[1].Content, "Pending")
+}
+
+func TestAutoTagHandleCreatesPendingCandidateWithEvidenceOnly(t *testing.T) {
+	fixture := newAutoTagFixture(t, `{"matches":[],"new_candidates":[{"name":"Quarterly Safety Review","description":"Recurring safety review process","confidence":0.93,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`)
+	require.NoError(t, fixture.handle(t))
+	require.Len(t, fixture.lifecycle.created, 1)
+	candidate := fixture.lifecycle.created[0]
+	assert.Equal(t, "Quarterly Safety Review", candidate.Name)
+	assert.Equal(t, types.KnowledgeTagStatusPending, candidate.Status)
+	assert.Empty(t, fixture.repo.added, "pending candidates are not document tags")
+	require.Len(t, fixture.repo.candidateBindings, 1)
+	assert.Equal(t, candidate.ID, fixture.repo.candidateBindings[0].TagID)
+	assert.Equal(t, "chunk-1", fixture.repo.candidateBindings[0].ChunkID)
+	assert.Equal(t, "quarterly HR policy", fixture.repo.candidateBindings[0].Evidence)
+	assert.Empty(t, fixture.repo.activeBindings)
+}
+
+func TestAutoTagHandleCanCreateCandidateWithoutExistingTags(t *testing.T) {
+	fixture := newAutoTagFixture(t, `{"matches":[],"new_candidates":[{"name":"Safety Review","description":"Safety review process","confidence":0.9,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`)
+	fixture.tagRepo.tags = nil
+	require.NoError(t, fixture.handle(t))
+	require.Len(t, fixture.lifecycle.created, 1)
+	require.Len(t, fixture.repo.candidateBindings, 1)
+	assert.Empty(t, fixture.repo.added)
+	assert.Contains(t, fixture.chatModel.messages[0].Content, "new_candidates")
+	assert.Contains(t, fixture.chatModel.messages[1].Content, "(no existing tags)")
 }
 
 // skip_if_tagged defaults to on, so a manually classified document is left
@@ -228,7 +338,7 @@ func TestAutoTagHandleSkipsDocumentThatAlreadyHasTags(t *testing.T) {
 
 func TestAutoTagHandleAppendsWhenSkipIfTaggedDisabled(t *testing.T) {
 	disabled := false
-	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9}]}`,
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`,
 		func(f *autoTagFixture) {
 			f.service.kbService.(*autoTagKBService).kb.AutoTagConfig.SkipIfTagged = &disabled
 		})
@@ -241,7 +351,7 @@ func TestAutoTagHandleAppendsWhenSkipIfTaggedDisabled(t *testing.T) {
 // pass must stay idempotent rather than re-adding them.
 func TestAutoTagHandleSkipsTagsAlreadyAttached(t *testing.T) {
 	disabled := false
-	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9}]}`,
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`,
 		func(f *autoTagFixture) {
 			f.service.kbService.(*autoTagKBService).kb.AutoTagConfig.SkipIfTagged = &disabled
 		})
@@ -267,7 +377,7 @@ func TestAutoTagHandleSkipsCancelledKnowledge(t *testing.T) {
 // An oversized tag set is classified against a stable prefix rather than
 // abandoning the task, which used to disable the feature outright.
 func TestAutoTagHandleClassifiesPrefixWhenCandidatesExceedCap(t *testing.T) {
-	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9}]}`,
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`,
 		func(f *autoTagFixture) {
 			tags := make([]*types.KnowledgeTag, 0, maximumAutoTagCandidates)
 			tags = append(tags, &types.KnowledgeTag{ID: "tag-a", Name: "HR"})
@@ -293,7 +403,7 @@ func TestAutoTagPromptListsCandidatesByOrdinal(t *testing.T) {
 }
 
 func TestAutoTagHandleReturnsErrorWhenPersistFails(t *testing.T) {
-	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9}]}`)
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9,"evidence_chunk_index":1,"evidence_quote":"quarterly HR policy"}]}`)
 	fixture.repo.addErr = errors.New("db down")
 	require.Error(t, fixture.handle(t))
 }
@@ -307,7 +417,46 @@ func TestAutoTagPromptFencesDocumentContent(t *testing.T) {
 	user := fixture.chatModel.messages[1].Content
 	assert.Contains(t, user, "<document>")
 	assert.Contains(t, user, "</document>")
+	assert.Contains(t, user, "<evidence_chunks>")
+	assert.Contains(t, user, "quote from one of these")
 	assert.Contains(t, fixture.chatModel.messages[0].Content, "never as instructions")
+}
+
+func TestAutoTagHandleRejectsUnverifiableEvidence(t *testing.T) {
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.99,"evidence_chunk_index":1,"evidence_quote":"The document proves a different claim."}]}`)
+	require.NoError(t, fixture.handle(t))
+	assert.Empty(t, fixture.repo.added)
+	assert.Empty(t, fixture.repo.bindings)
+}
+
+func TestValidateAutoTagBindingsRequiresExactSourceQuote(t *testing.T) {
+	tags := []*types.KnowledgeTag{{ID: "tag-a"}, {ID: "tag-b"}}
+	chunks := []autoTagEvidenceChunk{{ID: "chunk-a", Content: "Employees must submit expenses by Friday."}}
+	matches := []autoTagModelMatch{
+		{Index: 1, Confidence: confidencePtr(0.95), EvidenceChunkIndex: 1, EvidenceQuote: "submit expenses by Friday"},
+		{Index: 2, Confidence: confidencePtr(0.99), EvidenceChunkIndex: 1, EvidenceQuote: "expenses are approved immediately"},
+	}
+	bindings := validateAutoTagBindings(tags, matches, chunks, 5)
+	require.Len(t, bindings, 1)
+	assert.Equal(t, "tag-a", bindings[0].TagID)
+	assert.Equal(t, "chunk-a", bindings[0].ChunkID)
+	assert.Equal(t, "submit expenses by Friday", bindings[0].Evidence)
+}
+
+func TestValidateAutoTagCandidatesRequiresNovelBoundedEvidence(t *testing.T) {
+	chunks := []autoTagEvidenceChunk{{ID: "chunk-a", Content: "Employees must submit expenses by Friday."}}
+	candidates := []autoTagModelCandidate{
+		{Name: "Finance", Confidence: confidencePtr(0.99), EvidenceChunkIndex: 1, EvidenceQuote: "submit expenses by Friday"},
+		{Name: "  Travel Policy ", Description: "Travel expenses", Confidence: confidencePtr(0.9), EvidenceChunkIndex: 1, EvidenceQuote: "submit expenses by Friday"},
+		{Name: "travel policy", Confidence: confidencePtr(0.95), EvidenceChunkIndex: 1, EvidenceQuote: "submit expenses"},
+		{Name: "Invented", Confidence: confidencePtr(0.99), EvidenceChunkIndex: 1, EvidenceQuote: "employee reimbursement is immediate"},
+		{Name: strings.Repeat("x", 129), Confidence: confidencePtr(0.99), EvidenceChunkIndex: 1, EvidenceQuote: "submit expenses"},
+	}
+	validated := validateAutoTagCandidates(candidates, chunks, []*types.KnowledgeTag{{Name: "finance"}}, 5)
+	require.Len(t, validated, 1)
+	assert.Equal(t, "Travel Policy", validated[0].Name)
+	assert.Equal(t, "chunk-a", validated[0].ChunkID)
+	assert.Equal(t, "submit expenses by Friday", validated[0].Evidence)
 }
 
 func TestValidateAutoTagMatches(t *testing.T) {
@@ -401,7 +550,7 @@ func TestAutoTagHandleFeedsOCRChunksToClassifier(t *testing.T) {
 			Content: "figure: policy cover", ParentChunkID: "p1",
 		},
 	}
-	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9}]}`)
+	fixture := newAutoTagFixture(t, `{"matches":[{"index":1,"confidence":0.9,"evidence_chunk_index":2,"evidence_quote":"quarterly HR policy for construction safety"}]}`)
 	fixture.service.chunkRepo = &autoTagChunkRepo{chunks: scanned}
 	require.NoError(t, fixture.handle(t))
 

@@ -335,7 +335,17 @@ func RegisterKnowledgeTagRoutes(r *gin.RouterGroup, tagHandler *handler.TagHandl
 		// for the duration of the handler — so the handler no longer
 		// needs its own effectiveCtxForKB helper.
 		kbTagsRead.GET("", g.Viewer(), g.KBAccessRead("id"), tagHandler.ListTags)
+		kbTagsRead.GET("/candidates", g.Viewer(), g.KBAccessRead("id"), tagHandler.ListTagCandidates)
+		kbTagsRead.GET("/candidates/:tag_id/evidence", g.Viewer(), g.KBAccessRead("id"), tagHandler.ListTagCandidateEvidence)
+		kbTagsRead.GET("/:tag_id/wiki", g.Viewer(), g.KBAccessRead("id"), tagHandler.GetTagWiki)
+		kbTagsRead.POST("/wiki/search", g.Viewer(), g.KBAccessRead("id"), tagHandler.SearchTagWiki)
+		kbTagsRead.GET("/relations", g.Viewer(), g.KBAccessRead("id"), tagHandler.ListTagRelations)
 		kbTags.POST("", g.OwnedKBOrAdmin(), g.KBAccessWrite("id"), tagHandler.CreateTag)
+		kbTags.POST("/candidates", g.OwnedKBOrAdmin(), g.KBAccessWrite("id"), tagHandler.CreateTagCandidate)
+		kbTags.POST("/candidates/:tag_id/review", g.OwnedKBOrAdmin(), g.KBAccessWrite("id"), tagHandler.ReviewTagCandidate)
+		kbTags.POST("/:tag_id/wiki/generate", g.OwnedKBOrAdmin(), g.KBAccessWrite("id"), tagHandler.GenerateTagWiki)
+		kbTags.POST("/relations", g.OwnedKBOrAdmin(), g.KBAccessWrite("id"), tagHandler.CreateTagRelation)
+		kbTags.DELETE("/relations/:relation_id", g.OwnedKBOrAdmin(), g.KBAccessWrite("id"), tagHandler.DeleteTagRelation)
 		kbTags.PUT("/:tag_id", g.OwnedKBOrAdmin(), g.KBAccessWrite("id"), tagHandler.UpdateTag)
 		kbTags.DELETE("/:tag_id", g.OwnedKBOrAdmin(), g.KBAccessWrite("id"), tagHandler.DeleteTag)
 	}

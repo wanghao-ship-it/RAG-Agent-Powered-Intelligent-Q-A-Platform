@@ -192,6 +192,7 @@ func newDocumentWriteFixture(t *testing.T) *documentWriteFixture {
 			&types.Chunk{},
 			&types.KnowledgeTag{},
 			&types.KnowledgeTagRelation{},
+			&types.KnowledgeTagBinding{},
 			&types.ChunkRevision{},
 		),
 	)

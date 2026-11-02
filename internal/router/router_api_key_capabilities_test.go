@@ -314,6 +314,7 @@ func TestKnowledgeReadRoutesDeclareRetrieveCapability(t *testing.T) {
 		{http.MethodGet, "/api/v1/knowledge/:id/download"},
 		{http.MethodPost, "/api/v1/knowledge-bases/:id/faq/search"},
 		{http.MethodGet, "/api/v1/knowledge-bases/:id/tags"},
+		{http.MethodGet, "/api/v1/knowledge-bases/:id/tags/candidates/:tag_id/evidence"},
 		{http.MethodPost, "/api/v1/knowledge-search"},
 		{http.MethodPost, "/api/v1/wiki-search"},
 		{http.MethodGet, "/api/v1/initialization/config/:kbId"},

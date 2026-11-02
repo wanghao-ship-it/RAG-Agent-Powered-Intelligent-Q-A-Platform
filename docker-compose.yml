@@ -63,7 +63,7 @@ services:
       # Optional: declarative built-in models. Copy config/builtin_models.yaml.example
       # to config/builtin_models.yaml, edit it for your deployment, then
       # uncomment the line below. See website-docs/03-features/06-models.md.
-      # - ./config/builtin_models.yaml:/app/config/builtin_models.yaml:ro
+      - ./config/builtin_models.yaml:/app/config/builtin_models.yaml:ro
       # Optional: model catalog overlay (extra vendors / model overrides).
       # Copy config/models.json.example to config/models.json, then
       # - ./config/models.json:/app/config/models.json:ro
@@ -1106,3 +1106,5 @@ volumes:
   langfuse_clickhouse_logs:
   langfuse_minio_data:
   searxng_config:
+
+

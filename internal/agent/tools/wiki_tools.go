@@ -800,6 +800,10 @@ func NewWikiSearchTool(
       "description": "Maximum pages to return per knowledge base (default 10, max 50)",
       "minimum": 1,
       "maximum": 50
+    },
+    "tag_wiki_only": {
+      "type": "boolean",
+      "description": "Only return generated Tag-Wiki pages; use wiki_read_page to read the returned page"
     }
   },
   "required": ["query"]
@@ -821,6 +825,7 @@ func (t *wikiSearchTool) Execute(ctx context.Context, args json.RawMessage) (*ty
 		Limit            int      `json:"limit"`
 		KnowledgeBaseIDs []string `json:"knowledge_base_ids"`
 		KnowledgeBaseID  string   `json:"knowledge_base_id"` // legacy alias
+		TagWikiOnly      bool     `json:"tag_wiki_only"`
 	}
 	if err := json.Unmarshal(args, &params); err != nil {
 		return &types.ToolResult{Success: false, Error: "Invalid parameters: " + err.Error()}, nil
@@ -919,6 +924,13 @@ func (t *wikiSearchTool) Execute(ctx context.Context, args json.RawMessage) (*ty
 			for _, p := range pages {
 				if p == nil || kept >= params.Limit {
 					continue
+				}
+				if params.TagWikiOnly {
+					meta, _ := p.PageMetadata.Map()
+					if meta["kind"] != "tag_wiki" {
+						filteredCount++
+						continue
+					}
 				}
 				passesScope, scopeErr := pagePassesWikiScope(ctx, p, sc, fetchTags)
 				if scopeErr != nil {

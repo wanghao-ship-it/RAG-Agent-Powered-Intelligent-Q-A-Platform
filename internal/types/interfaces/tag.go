@@ -63,3 +63,61 @@ type KnowledgeTagRepository interface {
 	// DeleteUnusedTags deletes tags that are not referenced by any knowledge or chunk.
 	DeleteUnusedTags(ctx context.Context, tenantID uint64, kbID string) (int64, error)
 }
+
+// KnowledgeTagActiveRepository exposes only active tags to automatic classification.
+type KnowledgeTagActiveRepository interface {
+	ListActiveByKB(ctx context.Context, tenantID uint64, kbID string, page *types.Pagination) ([]*types.KnowledgeTag, int64, error)
+}
+
+// KnowledgeTagEdgeService manages typed relationships between tags.
+type KnowledgeTagEdgeService interface {
+	ListRelations(ctx context.Context, kbID string, tagID string) ([]*types.KnowledgeTagEdge, error)
+	CreateRelation(ctx context.Context, kbID string, fromTagID string, toTagID string, relationType string, confidence float64) (*types.KnowledgeTagEdge, error)
+	DeleteRelation(ctx context.Context, kbID string, relationID string) error
+}
+
+// KnowledgeTagEdgeRepository persists tag relationships in their owning KB.
+type KnowledgeTagEdgeRepository interface {
+	Create(ctx context.Context, edge *types.KnowledgeTagEdge) error
+	ListByKB(ctx context.Context, tenantID uint64, kbID string, tagID string) ([]*types.KnowledgeTagEdge, error)
+	GetByID(ctx context.Context, tenantID uint64, kbID string, id string) (*types.KnowledgeTagEdge, error)
+	Delete(ctx context.Context, tenantID uint64, kbID string, id string) error
+}
+
+// KnowledgeTagLifecycleService creates, lists, and reviews automatic tag candidates.
+type KnowledgeTagLifecycleService interface {
+	CreateCandidate(ctx context.Context, kbID string, name string, description string, confidence float64) (*types.KnowledgeTag, error)
+	ListPending(ctx context.Context, kbID string) ([]*types.KnowledgeTag, error)
+	ListCandidateEvidence(ctx context.Context, kbID string, tagID string) ([]*types.KnowledgeTagBinding, error)
+	ReviewCandidate(ctx context.Context, kbID string, tagID string, action string) (*types.KnowledgeTag, error)
+}
+
+// KnowledgeTagLifecycleRepository stores automatic-tag state transitions.
+type KnowledgeTagLifecycleRepository interface {
+	CreateCandidate(ctx context.Context, candidate *types.KnowledgeTag) error
+	ListByStatus(ctx context.Context, tenantID uint64, kbID string, status string) ([]*types.KnowledgeTag, error)
+	ListBindingsByTag(ctx context.Context, tenantID uint64, kbID string, tagID string) ([]*types.KnowledgeTagBinding, error)
+	GetByID(ctx context.Context, tenantID uint64, kbID string, id string) (*types.KnowledgeTag, error)
+	SetStatus(ctx context.Context, tenantID uint64, kbID string, id string, status string) error
+}
+
+// KnowledgeTagWikiStateRepository is the durable state machine for derived
+// tag Wiki pages. LockVersion makes worker writes conditional on the latest
+// queued source change.
+type KnowledgeTagWikiStateRepository interface {
+	MarkPending(ctx context.Context, tenantID uint64, kbID string, tagID string) (*types.KnowledgeTagWikiState, error)
+	Get(ctx context.Context, tenantID uint64, kbID string, tagID string) (*types.KnowledgeTagWikiState, error)
+	Claim(ctx context.Context, tenantID uint64, kbID string, tagID string, lockVersion uint64) (bool, error)
+	MarkReady(ctx context.Context, tenantID uint64, kbID string, tagID string, lockVersion uint64, pageID string, sourceHash string, contentHash string) (bool, error)
+	MarkFailed(ctx context.Context, tenantID uint64, kbID string, tagID string, lockVersion uint64, lastError string) error
+	ListRecoverable(ctx context.Context) ([]*types.KnowledgeTagWikiState, error)
+}
+
+// KnowledgeTagWikiService schedules and compiles a Wiki page for an active
+// knowledge tag. Pending state is durable so startup recovery can re-arm work.
+type KnowledgeTagWikiService interface {
+	Enqueue(ctx context.Context, tenantID uint64, kbID string, tagID string) error
+	Search(ctx context.Context, tenantID uint64, kbID string, query string, topK int) ([]*types.KnowledgeTagWikiSearchResult, error)
+	Handle(ctx context.Context, task *asynq.Task) error
+	Recover(ctx context.Context) error
+}

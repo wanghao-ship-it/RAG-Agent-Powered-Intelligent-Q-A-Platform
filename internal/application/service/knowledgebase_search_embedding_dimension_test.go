@@ -139,7 +139,7 @@ func TestSearchPipeline_GroupsByEmbeddingDimension(t *testing.T) {
 		targets = append(targets, &types.SearchTarget{Type: types.SearchTargetTypeKnowledgeBase, KnowledgeBaseID: id})
 	}
 	svc.KnowledgeBaseService = newKBSvcForValidate(&fakeModelSvcForKeys{byID: models})
-	plugin := chatpipeline.NewPluginSearch(chatpipeline.NewEventManager(), svc, nil, nil, nil, nil, nil, nil, nil, nil)
+	plugin := chatpipeline.NewPluginSearch(chatpipeline.NewEventManager(), svc, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	chat := &types.ChatManage{
 		PipelineRequest: types.PipelineRequest{SearchTargets: targets, EmbeddingTopK: 10},
 		PipelineState:   types.PipelineState{RewriteQuery: "a shared question"},

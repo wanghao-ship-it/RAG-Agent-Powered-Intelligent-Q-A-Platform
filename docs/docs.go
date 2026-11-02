@@ -21,14 +21,6 @@ const docTemplate = `{
     "paths": {
         "/agent-chat/{session_id}": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "基于Agent的智能问答，支持多轮对话和SSE流式响应",
                 "consumes": [
                     "application/json"
@@ -82,16 +74,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/agent/grants": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "列出当前用户在某个会话（根会话）中通过“本会话允许”记住的授权，包括其委派子任务上批准的授权。",
                 "produces": [
                     "application/json"
@@ -123,16 +118,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/agent/grants/{id}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agent/grants/{id}": {
+            "delete": {
                 "description": "撤销当前用户的一条授权；之后同类调用会重新询问。",
                 "produces": [
                     "application/json"
@@ -164,16 +159,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/agent/mcp-oauth-resolutions/{pending_id}": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agent/mcp-oauth-resolutions/{pending_id}": {
+            "post": {
                 "description": "用户在对话中完成 OAuth 授权后调用，校验令牌存在后恢复被暂停的 Agent 工具调用",
                 "consumes": [
                     "application/json"
@@ -223,16 +218,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/agent/mcp-oauth-resolutions/{pending_id}/cancel": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agent/mcp-oauth-resolutions/{pending_id}/cancel": {
+            "post": {
                 "description": "用户主动跳过 OAuth 授权，解除 Agent 阻塞",
                 "produces": [
                     "application/json"
@@ -263,19 +258,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/agent/prompts/{prompt_id}": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "回答 Agent 运行中发起的交互（ask_user 提问、工具审批，或由浏览器自动应答的页面读写）。\nkind 须与交互一致，response 为该类型的回答 JSON（不接受未知字段）：\nask_user 为 {selected?, values?, text?, declined?}；\ntool_approval 为 {approved: bool, modified_args?: object, reason?: string, allow_in_session?: bool}；\npage_action 为 {declined?, error?, location?, snapshot?, applied?: [{ref, label?, summary?}],\nstayed?, return_path?}。\n返回 resumed=true 表示挂起的运行已请求恢复（自动化由调度器恢复），客户端需携带 resume_pending_id 重新接入该消息的事件流",
                 "consumes": [
                     "application/json"
@@ -326,11 +318,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/agent/tool-approvals/{pending_id}": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -338,7 +326,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agent/tool-approvals/{pending_id}": {
+            "post": {
                 "description": "用户审批通过或驳回一次工具调用（用于 Agent 阻塞等待审批的场景）",
                 "consumes": [
                     "application/json"
@@ -389,11 +381,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/agents": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -401,7 +389,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agents": {
+            "get": {
                 "description": "获取当前空间的所有智能体（包括内置智能体）",
                 "consumes": [
                     "application/json"
@@ -440,14 +432,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "agent.list",
-                    "max_items": 200,
-                    "risk": "read"
-                },
-                "x-agent-hint": "Lists the workspace's agents, built-in ones included. Built-in agents are shared by everyone; only an admin can change them."
-            },
-            "post": {
                 "security": [
                     {
                         "Bearer": []
@@ -456,6 +440,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "agent.list",
+                    "max_items": 200,
+                    "risk": "read"
+                },
+                "x-agent-hint": "Lists the workspace's agents, built-in ones included. Built-in agents are shared by everyone; only an admin can change them."
+            },
+            "post": {
                 "description": "创建新的自定义智能体",
                 "consumes": [
                     "application/json"
@@ -492,6 +484,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "agent.create",
                     "label_param": "name",
@@ -502,14 +502,6 @@ const docTemplate = `{
         },
         "/agents/placeholders": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "获取所有可用的提示词占位符定义，按字段类型分组",
                 "consumes": [
                     "application/json"
@@ -540,11 +532,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/agents/tools": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -552,7 +540,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agents/tools": {
+            "get": {
                 "description": "返回编辑器可勾选的内置工具（含分组和知识库能力要求）、工具列表未设置时生效的默认工具，以及由开关控制、写入工具列表也不生效的工具",
                 "consumes": [
                     "application/json"
@@ -583,11 +575,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/agents/type-presets": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -595,7 +583,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agents/type-presets": {
+            "get": {
                 "description": "返回所有 smart-reasoning 下可用的智能体类型预设（RAG/Wiki/Hybrid/Custom），用于编辑器自动填充系统提示词、工具和 KB 兼容性",
                 "consumes": [
                     "application/json"
@@ -629,11 +621,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/agents/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -641,7 +629,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agents/{id}": {
+            "get": {
                 "description": "根据ID获取智能体详情",
                 "consumes": [
                     "application/json"
@@ -695,13 +687,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "agent.get",
-                    "risk": "read"
-                },
-                "x-agent-hint": "Returns an agent's settings, including its full system prompt, tools and MCP and skill scope."
-            },
-            "put": {
                 "security": [
                     {
                         "Bearer": []
@@ -710,6 +695,13 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "agent.get",
+                    "risk": "read"
+                },
+                "x-agent-hint": "Returns an agent's settings, including its full system prompt, tools and MCP and skill scope."
+            },
+            "put": {
                 "description": "更新智能体的名称、描述和配置",
                 "consumes": [
                     "application/json"
@@ -758,9 +750,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -768,7 +758,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "删除指定的智能体",
                 "consumes": [
                     "application/json"
@@ -816,6 +808,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "agent.delete",
                     "label": "name",
@@ -825,14 +825,6 @@ const docTemplate = `{
                 "x-agent-hint": "Deletes an agent and its IM channels. Cannot be undone; built-in agents cannot be deleted."
             },
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "只修改请求中出现的字段，其余配置保持不变。\n支持名称、描述、运行模式、系统提示词、对话模型、知识库、MCP、技能范围、联网搜索、多轮对话。\nagent_mode 取 quick-answer 或 smart-reasoning。MCP 与技能只在 smart-reasoning 下运行，切到该模式会打开多轮对话。\n传 knowledge_bases、mcp_services 或 selected_skills 而不传对应模式时，切换为 selected。\n技能模式 all/none 清空技能列表；启用技能须先在编辑器选择沙箱，selected 名称须可用，否则返回 400。",
                 "consumes": [
                     "application/json"
@@ -889,6 +881,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "agent.update",
                     "label": "name",
@@ -901,14 +901,6 @@ const docTemplate = `{
         },
         "/agents/{id}/copy": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "复制指定的智能体",
                 "consumes": [
                     "application/json"
@@ -962,6 +954,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "agent.copy",
                     "label": "name",
@@ -973,14 +973,6 @@ const docTemplate = `{
         },
         "/agents/{id}/shares/{share_id}": {
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "从智能体的共享列表中移除指定共享关系",
                 "produces": [
                     "application/json"
@@ -1018,11 +1010,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/agents/{id}/suggested-questions": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -1030,7 +1018,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/agents/{id}/suggested-questions": {
+            "get": {
                 "description": "基于智能体关联的知识库，返回推荐问题供用户快捷提问",
                 "consumes": [
                     "application/json"
@@ -1106,11 +1098,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/artifacts": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -1118,7 +1106,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/artifacts": {
+            "get": {
                 "description": "跨会话列出当前用户可见会话中技能生成的文件，每个文件只返回最新版本（不含存储 URL）",
                 "produces": [
                     "application/json"
@@ -1170,6 +1162,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "artifact.list",
                     "risk": "read"
@@ -1177,11 +1177,6 @@ const docTemplate = `{
                 "x-agent-hint": "Files generated by agents across the user's conversations, newest first. This is the Artifacts library, not the current chat's sandbox. keyword matches file names; file_types is a comma-separated list of extensions such as .pdf,.pptx,.md. Each item has file_name, created_at, session_title and session_id. Do not use generated-file or sandbox tools to answer what is on this page."
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "删除产物库中的一个文件。产物库一行代表一个文件的最新版本，默认连同该文件在本会话中的所有历史版本一并删除",
                 "produces": [
                     "application/json"
@@ -1233,7 +1228,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/auth/auto-setup": {
@@ -1267,11 +1267,6 @@ const docTemplate = `{
         },
         "/auth/change-password": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "修改当前用户的登录密码。新密码须满足 8–32 位且同时包含字母与数字；开启复杂密码后还需包含大小写与特殊字符。成功后所有会话被撤销，需重新登录。",
                 "consumes": [
                     "application/json"
@@ -1315,7 +1310,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/auth/config": {
@@ -1423,11 +1423,6 @@ const docTemplate = `{
         },
         "/auth/logout": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "撤销当前访问令牌并登出",
                 "consumes": [
                     "application/json"
@@ -1452,16 +1447,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/auth/me": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/auth/me": {
+            "get": {
                 "description": "获取当前登录用户的详细信息",
                 "consumes": [
                     "application/json"
@@ -1498,16 +1493,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/auth/me/preferences": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/auth/me/preferences": {
+            "put": {
                 "description": "按 PATCH 语义合并用户偏好（仅覆盖请求体里出现的字段，其余字段保持不变），\n数据存放在 users.preferences (JSON)，跨设备/浏览器自动同步。",
                 "consumes": [
                     "application/json"
@@ -1561,7 +1556,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/auth/oidc/callback": {
@@ -1836,11 +1836,6 @@ const docTemplate = `{
         },
         "/auth/switch-tenant": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "为当前用户在目标空间重新签发访问令牌；要求该用户在目标空间存在 active 成员关系（跨租户超级用户除外）。\n成功换签会把目标空间写入「最近活跃租户」偏好，下次登录与 refresh 都落在该空间（refresh JWT 不含 tenant_id）。\n该偏好是账号级的：一次换签会改变该用户所有设备的下次登录/refresh 落点。偏好写入失败则整次换签失败，不会发出新 token。",
                 "consumes": [
                     "application/json"
@@ -1890,16 +1885,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/auth/validate": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/auth/validate": {
+            "get": {
                 "description": "验证访问令牌是否有效",
                 "consumes": [
                     "application/json"
@@ -1924,16 +1919,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/automation-runs/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/automation-runs/{id}": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
@@ -1969,16 +1964,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/automation-runs/{id}/cancel": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/automation-runs/{id}/cancel": {
+            "post": {
                 "description": "排队或等待审批的运行立即结束；执行中的运行在下一次检查时停止",
                 "produces": [
                     "application/json"
@@ -2015,16 +2010,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/automations": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/automations": {
+            "get": {
                 "description": "列出当前用户在本空间创建的自动化（定时任务），最新的在前",
                 "produces": [
                     "application/json"
@@ -2056,6 +2051,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "automation.list",
                     "max_items": 100,
@@ -2064,11 +2064,6 @@ const docTemplate = `{
                 "x-agent-hint": "Lists the user's automations: scheduled tasks the WeKnora assistant runs on their behalf, with next and last run."
             },
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "创建一个按计划由 WeKnora 助手以当前用户身份运行的任务",
                 "consumes": [
                     "application/json"
@@ -2117,6 +2112,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "always_confirm": true,
                     "id": "automation.create",
@@ -2129,11 +2129,6 @@ const docTemplate = `{
         },
         "/automations/by-session/{session_id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "返回这次会话所属的自动化，供会话页跳回",
                 "produces": [
                     "application/json"
@@ -2176,16 +2171,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/automations/validate-trigger": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/automations/validate-trigger": {
+            "post": {
                 "description": "校验 cron 或一次性触发器，返回未来 3 次触发时间",
                 "consumes": [
                     "application/json"
@@ -2234,6 +2229,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "automation.validate_trigger",
                     "risk": "probe"
@@ -2243,11 +2243,6 @@ const docTemplate = `{
         },
         "/automations/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2291,6 +2286,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "automation.get",
                     "risk": "read"
@@ -2298,11 +2298,6 @@ const docTemplate = `{
                 "x-agent-hint": "Returns one automation, including its instruction."
             },
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "只修改请求中出现的字段，其余保持不变",
                 "consumes": [
                     "application/json"
@@ -2359,6 +2354,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "always_confirm": true,
                     "id": "automation.update",
@@ -2370,11 +2370,6 @@ const docTemplate = `{
                 "x-agent-hint": "Changes the listed fields of an automation; a field left out is kept. Check a new trigger with automation.validate_trigger first. Use automation.pause and automation.resume to switch it off and on."
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "停止进行中的运行，删除自动化及其运行记录、会话和长期授权",
                 "produces": [
                     "application/json"
@@ -2407,6 +2402,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "automation.delete",
                     "label": "name",
@@ -2419,11 +2419,6 @@ const docTemplate = `{
         },
         "/automations/{id}/grant-candidates": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "列出本自动化的运行请求过审批、尚未长期授权的调用；需每次审批的调用不在其中",
                 "produces": [
                     "application/json"
@@ -2449,16 +2444,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/automations/{id}/grants": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/automations/{id}/grants": {
+            "get": {
                 "description": "列出以后的运行无需确认即可执行的调用，以及失效原因",
                 "produces": [
                     "application/json"
@@ -2484,14 +2479,14 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "让以后的运行无需确认即可执行某次运行请求过审批的调用；Agent 配置或所有者角色变化后失效",
                 "consumes": [
                     "application/json"
@@ -2529,16 +2524,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/automations/{id}/pause": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/automations/{id}/pause": {
+            "post": {
                 "description": "停止按计划触发；进行中的运行不受影响",
                 "produces": [
                     "application/json"
@@ -2577,6 +2572,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "automation.pause",
                     "label": "name",
@@ -2589,11 +2589,6 @@ const docTemplate = `{
         },
         "/automations/{id}/resume": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "从现在起重新按计划触发，并清零连续失败计数",
                 "produces": [
                     "application/json"
@@ -2632,6 +2627,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "always_confirm": true,
                     "id": "automation.resume",
@@ -2645,11 +2645,6 @@ const docTemplate = `{
         },
         "/automations/{id}/run": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "排队一次手动运行；已有运行在排队或进行中时拒绝",
                 "produces": [
                     "application/json"
@@ -2694,6 +2689,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "always_confirm": true,
                     "id": "automation.run_now",
@@ -2707,11 +2707,6 @@ const docTemplate = `{
         },
         "/automations/{id}/runs": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2767,6 +2762,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "automation.list_runs",
                     "risk": "read"
@@ -2776,14 +2776,6 @@ const docTemplate = `{
         },
         "/chunker/preview": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "对提交的文本运行自适应分块器并返回分块预览，不写入数据库不生成 embedding。文本最大 64k 字符",
                 "consumes": [
                     "application/json"
@@ -2834,11 +2826,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/chunks/by-id/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -2846,7 +2834,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/chunks/by-id/{id}": {
+            "get": {
                 "description": "仅通过分块ID获取分块详情（不需要knowledge_id）；支持共享知识库下的分块访问",
                 "consumes": [
                     "application/json"
@@ -2900,6 +2892,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "chunk.get",
                     "risk": "read"
@@ -2909,14 +2909,6 @@ const docTemplate = `{
         },
         "/chunks/by-id/{id}/questions": {
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "删除分块中生成的问题",
                 "consumes": [
                     "application/json"
@@ -2970,11 +2962,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/chunks/{knowledge_id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -2982,7 +2970,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/chunks/{knowledge_id}": {
+            "get": {
                 "description": "获取指定知识下的所有分块列表，支持分页。chunk_type 可重复，缺省 text\n取值 text, parent_text, image_ocr, image_caption, image_vector, summary, entity,\nrelationship, faq, web_search, table_summary, table_column, wiki_page",
                 "consumes": [
                     "application/json"
@@ -3080,13 +3072,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "chunk.list",
-                    "risk": "read"
-                },
-                "x-agent-hint": "The chunks a document was split into, in order; use it to check how a document was parsed. meta.total counts every chunk."
-            },
-            "delete": {
                 "security": [
                     {
                         "Bearer": []
@@ -3095,6 +3080,13 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "chunk.list",
+                    "risk": "read"
+                },
+                "x-agent-hint": "The chunks a document was split into, in order; use it to check how a document was parsed. meta.total counts every chunk."
+            },
+            "delete": {
                 "description": "删除指定知识下的所有分块",
                 "consumes": [
                     "application/json"
@@ -3128,11 +3120,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/chunks/{knowledge_id}/{id}": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -3140,7 +3128,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/chunks/{knowledge_id}/{id}": {
+            "put": {
                 "description": "更新指定分块的内容和属性",
                 "consumes": [
                     "application/json"
@@ -3199,6 +3191,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "chunk.update",
                     "label": "chunk_id",
@@ -3209,14 +3209,6 @@ const docTemplate = `{
                 "x-agent-hint": "Edit the complete content of a document chunk or set is_enabled; omitted fields stay unchanged. Read chunk.get first and pass its content_revision as expected_revision. Do not edit truncated content. A conflict requires rereading and reconciling edits. Reindexes affected content and preserves revision history; FAQ and wiki chunks use their own editors."
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "删除指定的分块",
                 "consumes": [
                     "application/json"
@@ -3263,11 +3255,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/chunks/{knowledge_id}/{id}/revert": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -3275,7 +3263,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/chunks/{knowledge_id}/{id}/revert": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -3333,6 +3325,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "chunk.revert",
                     "label": "chunk_id",
@@ -3344,14 +3344,6 @@ const docTemplate = `{
         },
         "/chunks/{knowledge_id}/{id}/revisions": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -3403,6 +3395,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "chunk.list_revisions",
                     "risk": "read"
@@ -4045,14 +4045,6 @@ const docTemplate = `{
         },
         "/datasource/{id}/sync-settings": {
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -4090,6 +4082,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "data_source.update_sync",
                     "label": "name",
@@ -4144,14 +4144,6 @@ const docTemplate = `{
         },
         "/evaluation/": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "根据任务ID获取评估结果",
                 "consumes": [
                     "application/json"
@@ -4197,9 +4189,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4207,7 +4197,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "对知识库进行评估测试",
                 "consumes": [
                     "application/json"
@@ -4255,11 +4247,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/faq/import/progress/{task_id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4267,7 +4255,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/faq/import/progress/{task_id}": {
+            "get": {
                 "description": "获取FAQ导入任务的进度",
                 "consumes": [
                     "application/json"
@@ -4313,11 +4305,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/im-channels/{id}": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4325,7 +4313,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/im-channels/{id}": {
+            "put": {
                 "description": "更新指定 IM 渠道的名称、模式、回复语言、知识库、凭证或启用状态",
                 "consumes": [
                     "application/json"
@@ -4377,9 +4369,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4387,7 +4377,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "删除指定 IM 渠道",
                 "produces": [
                     "application/json"
@@ -4426,11 +4418,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/im-channels/{id}/toggle": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4438,7 +4426,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/im-channels/{id}/toggle": {
+            "post": {
                 "description": "切换指定 IM 渠道的启用状态",
                 "produces": [
                     "application/json"
@@ -4477,7 +4469,15 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/im/callback/{channel_id}": {
@@ -4574,14 +4574,6 @@ const docTemplate = `{
         },
         "/image-attrs/schema": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回当前版本的图片属性注册表、提示词版本和默认动作。全局只读，不绑定知识库。",
                 "produces": [
                     "application/json"
@@ -4609,11 +4601,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/initialization/asr/check": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4621,7 +4609,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/asr/check": {
+            "post": {
                 "description": "检查ASR（语音识别）模型连接是否正常，通过发送一段静默音频测试 /v1/audio/transcriptions 端点",
                 "consumes": [
                     "application/json"
@@ -4658,11 +4650,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/config/{kbId}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4670,7 +4658,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/config/{kbId}": {
+            "get": {
                 "description": "根据知识库ID获取当前配置信息",
                 "consumes": [
                     "application/json"
@@ -4705,9 +4697,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4715,7 +4705,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "根据知识库ID更新模型和分块配置",
                 "consumes": [
                     "application/json"
@@ -4764,11 +4756,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/embedding/test": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4776,7 +4764,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/embedding/test": {
+            "post": {
                 "description": "测试Embedding接口是否可用并返回向量维度",
                 "consumes": [
                     "application/json"
@@ -4813,7 +4805,15 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/initialization/extract/fabri-tag": {
@@ -4853,14 +4853,6 @@ const docTemplate = `{
         },
         "/initialization/extract/fabri-text": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "根据标签生成示例文本",
                 "consumes": [
                     "application/json"
@@ -4908,11 +4900,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/extract/text-relation": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4920,7 +4908,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/extract/text-relation": {
+            "post": {
                 "description": "从文本中提取实体和关系",
                 "consumes": [
                     "application/json"
@@ -4968,11 +4960,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/initialize/{kbId}": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -4980,7 +4968,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/initialize/{kbId}": {
+            "post": {
                 "description": "根据知识库ID执行完整配置更新",
                 "consumes": [
                     "application/json"
@@ -5024,11 +5016,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/multimodal/test": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5036,7 +5024,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/multimodal/test": {
+            "post": {
                 "description": "上传图片测试多模态处理功能",
                 "consumes": [
                     "multipart/form-data"
@@ -5104,11 +5096,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/ollama/download/progress/{taskId}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5116,7 +5104,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/ollama/download/progress/{taskId}": {
+            "get": {
                 "description": "获取Ollama模型下载任务的进度",
                 "consumes": [
                     "application/json"
@@ -5162,11 +5154,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/ollama/download/tasks": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5174,7 +5162,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/ollama/download/tasks": {
+            "get": {
                 "description": "列出所有Ollama模型下载任务",
                 "consumes": [
                     "application/json"
@@ -5208,11 +5200,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/initialization/ollama/models": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5220,7 +5208,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/ollama/models": {
+            "get": {
                 "description": "列出已安装的Ollama模型",
                 "consumes": [
                     "application/json"
@@ -5246,11 +5238,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/ollama/models/check": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5258,7 +5246,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/ollama/models/check": {
+            "post": {
                 "description": "检查指定的Ollama模型是否已安装",
                 "consumes": [
                     "application/json"
@@ -5303,11 +5295,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/ollama/models/download": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5315,7 +5303,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/ollama/models/download": {
+            "post": {
                 "description": "异步下载指定的Ollama模型",
                 "consumes": [
                     "application/json"
@@ -5357,7 +5349,15 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/initialization/ollama/status": {
@@ -5386,14 +5386,6 @@ const docTemplate = `{
         },
         "/initialization/remote/check": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "检查远程API模型连接是否正常",
                 "consumes": [
                     "application/json"
@@ -5430,11 +5422,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/initialization/rerank/check": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5442,7 +5430,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/initialization/rerank/check": {
+            "post": {
                 "description": "检查Rerank模型连接和功能是否正常",
                 "consumes": [
                     "application/json"
@@ -5479,11 +5471,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5491,7 +5479,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases": {
+            "get": {
                 "description": "获取当前空间的所有知识库；或当传入 agent_id（共享智能体）时，校验权限后返回该智能体配置的知识库范围（用于 @ 提及）",
                 "consumes": [
                     "application/json"
@@ -5556,14 +5548,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "knowledge_base.list",
-                    "max_items": 200,
-                    "risk": "read"
-                },
-                "x-agent-hint": "The workspace's own knowledge bases, up to 200. Ones shared from other workspaces are in knowledge_base.list_shared."
-            },
-            "post": {
                 "security": [
                     {
                         "Bearer": []
@@ -5572,6 +5556,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "knowledge_base.list",
+                    "max_items": 200,
+                    "risk": "read"
+                },
+                "x-agent-hint": "The workspace's own knowledge bases, up to 200. Ones shared from other workspaces are in knowledge_base.list_shared."
+            },
+            "post": {
                 "description": "创建新的知识库",
                 "consumes": [
                     "application/json"
@@ -5626,6 +5618,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.create",
                     "label_param": "name",
@@ -5636,14 +5636,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/copy": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "将一个知识库的内容复制到另一个知识库（异步任务）",
                 "consumes": [
                     "application/json"
@@ -5704,6 +5696,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.copy",
                     "label": "name",
@@ -5715,14 +5715,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/copy/progress/{task_id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "获取知识库复制任务的进度",
                 "consumes": [
                     "application/json"
@@ -5776,6 +5768,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.get_copy_progress",
                     "risk": "read"
@@ -5785,14 +5785,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "根据ID获取知识库详情。当使用共享智能体时，可传 agent_id 以校验该智能体是否有权访问该知识库。",
                 "consumes": [
                     "application/json"
@@ -5858,13 +5850,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "knowledge_base.get",
-                    "risk": "read"
-                },
-                "x-agent-hint": "Check which indexes are enabled (vector, keyword, Wiki, graph) and whether documents are processing."
-            },
-            "put": {
                 "security": [
                     {
                         "Bearer": []
@@ -5873,6 +5858,13 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "knowledge_base.get",
+                    "risk": "read"
+                },
+                "x-agent-hint": "Check which indexes are enabled (vector, keyword, Wiki, graph) and whether documents are processing."
+            },
+            "put": {
                 "description": "更新知识库的名称、描述和配置",
                 "consumes": [
                     "application/json"
@@ -5939,9 +5931,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -5949,7 +5939,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "删除指定的知识库及其所有内容",
                 "consumes": [
                     "application/json"
@@ -5997,6 +5989,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.delete",
                     "label": "name",
@@ -6006,14 +6006,6 @@ const docTemplate = `{
                 "x-agent-hint": "Deletes the knowledge base and every document in it. Cannot be undone. Only the owner can delete it."
             },
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "修改请求里出现的设置。未出现的字段保持不变，包括分块、索引和模型里没写到的项。",
                 "consumes": [
                     "application/json"
@@ -6082,6 +6074,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.update",
                     "label": "name",
@@ -6093,11 +6093,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/activity": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "返回知识库的重要变更与后台任务入口。仅知识库创建者或所属空间管理员可读，共享空间不可读。\n按 id 倒序；把 next_cursor 作为 after_id 取下一页，返回空列表表示没有更多。",
                 "produces": [
                     "application/json"
@@ -6182,6 +6177,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.list_activity",
                     "risk": "read",
@@ -6192,11 +6192,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/duplicate": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "创建一个只包含设置的新知识库副本，不复制知识、FAQ 内容、分块、索引、Wiki 页面、分享或置顶状态",
                 "consumes": [
                     "application/json"
@@ -6256,6 +6251,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.duplicate",
                     "label": "name",
@@ -6267,14 +6267,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/faq/entries": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "获取知识库下的FAQ条目列表，支持分页和筛选",
                 "consumes": [
                     "application/json"
@@ -6390,14 +6382,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "faq.list_entries",
-                    "risk": "read",
-                    "root": "data.data"
-                },
-                "x-agent-hint": "FAQ entries of an FAQ knowledge base, newest first; keyword searches questions and answers."
-            },
-            "post": {
                 "security": [
                     {
                         "Bearer": []
@@ -6406,6 +6390,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "faq.list_entries",
+                    "risk": "read",
+                    "root": "data.data"
+                },
+                "x-agent-hint": "FAQ entries of an FAQ knowledge base, newest first; keyword searches questions and answers."
+            },
+            "post": {
                 "description": "异步批量更新或插入FAQ条目。支持 dry_run 模式（设置 dry_run=true），异步验证不实际导入。\ndry_run 模式是异步操作，返回 task_id，通过 /faq/import/progress/{task_id} 查询进度和结果。\n验证内容包括：1) 条目基本格式 2) 重复问题（批次内和知识库已有） 3) 内容安全检查。",
                 "consumes": [
                     "application/json"
@@ -6460,9 +6452,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -6470,7 +6460,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "批量删除指定的FAQ条目",
                 "consumes": [
                     "application/json"
@@ -6515,6 +6507,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "faq.delete_entries",
                     "items": {
@@ -6530,14 +6530,6 @@ const docTemplate = `{
                 "x-agent-hint": "Removes up to 20 FAQ entries. Cannot be undone; the confirmation lists every question."
             },
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "对明确指定的 FAQ 条目应用相同的部分更新，保留问题、答案及未指定字段",
                 "consumes": [
                     "application/json"
@@ -6582,6 +6574,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "faq.batch_update",
                     "items": {
@@ -6599,14 +6599,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/faq/entries/export": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "将所有FAQ条目导出为 CSV（默认）或 JSON。?format=json 返回与 FAQEntryPayload 结构兼容的数组。",
                 "consumes": [
                     "application/json"
@@ -6647,11 +6639,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/faq/entries/fields": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -6659,7 +6647,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/faq/entries/fields": {
+            "put": {
                 "description": "批量更新FAQ条目的多个字段（is_enabled, is_recommended, tag_id）",
                 "consumes": [
                     "application/json"
@@ -6702,11 +6694,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/faq/entries/tags": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -6714,7 +6702,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/faq/entries/tags": {
+            "put": {
                 "description": "批量更新FAQ条目的标签",
                 "consumes": [
                     "application/json"
@@ -6757,11 +6749,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/faq/entries/{entry_id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -6769,7 +6757,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/faq/entries/{entry_id}": {
+            "get": {
                 "description": "根据ID获取单个FAQ条目的详情",
                 "consumes": [
                     "application/json"
@@ -6831,12 +6823,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "faq.get_entry",
-                    "risk": "read"
-                }
-            },
-            "put": {
                 "security": [
                     {
                         "Bearer": []
@@ -6845,6 +6831,12 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "faq.get_entry",
+                    "risk": "read"
+                }
+            },
+            "put": {
                 "description": "更新指定的FAQ条目",
                 "consumes": [
                     "application/json"
@@ -6909,6 +6901,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "faq.update_entry",
                     "label": "standard_question",
@@ -6921,14 +6921,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/faq/entries/{entry_id}/similar-questions": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "向指定的FAQ条目添加相似问题",
                 "consumes": [
                     "application/json"
@@ -6999,6 +6991,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "faq.add_similar_questions",
                     "label": "standard_question",
@@ -7010,14 +7010,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/faq/entry": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "同步创建单个FAQ条目",
                 "consumes": [
                     "application/json"
@@ -7074,6 +7066,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "faq.create_entry",
                     "label": "name",
@@ -7085,14 +7085,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/faq/import/last-result/display": {
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "更新FAQ知识库导入结果统计卡片的显示或隐藏状态",
                 "consumes": [
                     "application/json"
@@ -7141,11 +7133,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/faq/search": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -7153,7 +7141,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/faq/search": {
+            "post": {
                 "description": "使用混合搜索在FAQ中搜索，支持两级优先级标签召回：first_priority_tag_ids优先级最高，second_priority_tag_ids次之",
                 "consumes": [
                     "application/json"
@@ -7211,11 +7203,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/graph-search": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -7223,7 +7211,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/graph-search": {
+            "post": {
                 "description": "对单个授权知识库按实体名进行区分大小写的子串查询，返回实体、定向关系及仍然有效的来源分块。不调用模型，不影响默认检索。0 表示使用默认上限。",
                 "consumes": [
                     "application/json"
@@ -7326,11 +7318,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/hybrid-search": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -7338,7 +7326,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/hybrid-search": {
+            "get": {
                 "description": "底层召回：向量+关键词混合检索，默认不 rerank（可用 rerank 字段开启）；一般检索请用 /knowledge-search。推荐 POST，GET 带 JSON 体仅兼容旧客户端。",
                 "consumes": [
                     "application/json"
@@ -7400,6 +7392,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.search",
                     "max_items": 30,
@@ -7409,14 +7409,6 @@ const docTemplate = `{
                 "x-agent-hint": "Runs the raw vector and keyword recall of one knowledge base, without rerank, and returns the chunks it finds in rank order, so you can see why something is or is not found. match_type 0 is a vector hit, 1 a keyword hit; score ranks the merged results and is not a similarity. Each threshold filters its own retriever before merging: leave them out to see every candidate, or set them to an agent's vector_threshold and keyword_threshold to see what passes. For answering a question, use search_knowledge instead."
             },
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "底层召回：向量+关键词混合检索，默认不 rerank（可用 rerank 字段开启）；一般检索请用 /knowledge-search。推荐 POST，GET 带 JSON 体仅兼容旧客户端。",
                 "consumes": [
                     "application/json"
@@ -7478,6 +7470,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.search",
                     "max_items": 30,
@@ -7489,14 +7489,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/images": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "浏览某知识库内的全部图片资产，支持关键字搜索（caption/OCR 文本）、按图片属性筛选（attr_filters / attr_rules）与排序分页。",
                 "consumes": [
                     "application/json"
@@ -7605,9 +7597,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -7615,7 +7605,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "与 GET /images 同义，筛选参数改经 JSON body 传递：knowledge_ids 不再受 URL 长度限制（上限 1000），供来源文档全选使用。",
                 "consumes": [
                     "application/json"
@@ -7672,11 +7664,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/knowledge": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -7684,7 +7672,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/knowledge": {
+            "get": {
                 "description": "获取知识库下的知识列表，支持分页和筛选\n不传 parse_status 时不返回删除中（deleting）的文档。",
                 "consumes": [
                     "application/json"
@@ -7856,13 +7848,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "knowledge.list",
-                    "risk": "read"
-                },
-                "x-agent-hint": "Use parse_status=failed to find documents that failed to parse; meta.total counts every match."
-            },
-            "delete": {
                 "security": [
                     {
                         "Bearer": []
@@ -7871,6 +7856,13 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "knowledge.list",
+                    "risk": "read"
+                },
+                "x-agent-hint": "Use parse_status=failed to find documents that failed to parse; meta.total counts every match."
+            },
+            "delete": {
                 "description": "删除知识库下的所有知识条目（异步任务）。知识库本身保留，仅清空其中的内容",
                 "consumes": [
                     "application/json"
@@ -7910,11 +7902,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/knowledge/batch-download": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -7922,7 +7910,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/knowledge/batch-download": {
+            "post": {
                 "description": "将同一知识库的最多 200 个文档打包为 ZIP，原始内容合计不超过 512 MiB。无原文件的条目会被跳过；无权访问、跨库或读取失败时不返回残缺压缩包。",
                 "consumes": [
                     "application/json"
@@ -7995,11 +7987,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/knowledge/file": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -8007,7 +7995,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/knowledge/file": {
+            "post": {
                 "description": "上传文件并创建知识条目",
                 "consumes": [
                     "multipart/form-data"
@@ -8097,11 +8089,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/knowledge/folders": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -8109,7 +8097,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/knowledge/folders": {
+            "get": {
                 "description": "返回知识库内由文件夹上传形成的目录树，包含每个文件夹的直接文档数与含子目录的总数",
                 "consumes": [
                     "application/json"
@@ -8157,6 +8149,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.list_folders",
                     "max_items": 200,
@@ -8166,14 +8166,6 @@ const docTemplate = `{
                 "x-agent-hint": "Top-level document folders, up to 200. meta.root_document_count is documents with no folder and meta.total_document_count is every document. Sub-folders are not listed; filter knowledge.list by folder_path to look inside one."
             },
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "把一个文件夹及其所有子目录改到新路径。目标路径已存在时两个文件夹合并；不能移动到自身子目录下",
                 "consumes": [
                     "application/json"
@@ -8236,6 +8228,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.rename_folder",
                     "label": "name",
@@ -8247,14 +8247,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/knowledge/manual": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "手工录入Markdown格式的知识内容",
                 "consumes": [
                     "application/json"
@@ -8311,6 +8303,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.create_manual",
                     "label": "name",
@@ -8322,14 +8322,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/knowledge/url": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "从指定URL抓取内容并创建知识条目。当提供 file_name/file_type 或 URL 路径含已知文件扩展名时，自动切换为文件下载模式",
                 "consumes": [
                     "application/json"
@@ -8393,6 +8385,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.create_from_url",
                     "label": "name",
@@ -8404,14 +8404,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/move-targets": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回与源知识库 Type 一致、EmbeddingModelID 一致、非临时且不是自身的目标知识库列表",
                 "produces": [
                     "application/json"
@@ -8477,6 +8469,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.list_move_targets",
                     "risk": "read"
@@ -8486,14 +8486,6 @@ const docTemplate = `{
         },
         "/knowledge-bases/{id}/pin": {
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "切换知识库的置顶状态",
                 "consumes": [
                     "application/json"
@@ -8551,11 +8543,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/profile/generate": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -8563,7 +8551,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/profile/generate": {
+            "post": {
                 "description": "基于文档画像聚合，立即重新生成知识库的 AI 描述（不覆盖手写描述）",
                 "produces": [
                     "application/json"
@@ -8620,6 +8612,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.generate_profile",
                     "label": "name",
@@ -8629,13 +8629,69 @@ const docTemplate = `{
                 "x-agent-hint": "Regenerates the AI summary of what the knowledge base covers, with one model call. A description the user wrote is kept."
             }
         },
-        "/knowledge-bases/{id}/shares": {
-            "get": {
+        "/knowledge-bases/{id}/rebuild-index": {
+            "post": {
+                "description": "索引策略变更后，把知识库下全部文档提交重新解析。前端知识库设置弹窗\n(KnowledgeBaseEditorModal) 在保存新策略后调用此接口，此前该路由在后端缺失，调用返回 404。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "知识管理"
+                ],
+                "summary": "重建整个知识库的索引",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "任务已提交",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "404": {
+                        "description": "知识库不存在",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "409": {
+                        "description": "有文档正在迁移中",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                },
                 "security": [
                     {
                         "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/shares": {
+            "get": {
                 "description": "获取知识库的所有共享记录",
                 "produces": [
                     "application/json"
@@ -8660,14 +8716,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.ListSharesResponse"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "将知识库共享到指定组织",
                 "consumes": [
                     "application/json"
@@ -8722,16 +8778,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-bases/{id}/shares/{share_id}": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/shares/{share_id}": {
+            "put": {
                 "description": "更新知识库共享的权限级别",
                 "consumes": [
                     "application/json"
@@ -8781,14 +8837,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "取消知识库的共享",
                 "tags": [
                     "知识库共享"
@@ -8823,19 +8879,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/knowledge-bases/{id}/tags": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "获取知识库下的所有标签及统计信息",
                 "consumes": [
                     "application/json"
@@ -8908,6 +8961,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.list_tags",
                     "max_items": 50,
@@ -8917,14 +8978,6 @@ const docTemplate = `{
                 "x-agent-hint": "Tags of a knowledge base with how many documents use each. meta.total is the full count; pass tag ids to knowledge.list tag_ids. Ask for at most 50 per page."
             },
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "在知识库下创建新标签",
                 "consumes": [
                     "application/json"
@@ -8981,6 +9034,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.create_tag",
                     "label": "name",
@@ -8990,8 +9051,32 @@ const docTemplate = `{
                 "x-agent-hint": "Creates a tag in the knowledge base. Pass the returned tag id to knowledge.set_tags."
             }
         },
-        "/knowledge-bases/{id}/tags/{tag_id}": {
-            "put": {
+        "/knowledge-bases/{id}/tags/candidates": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "获取待审核标签",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    }
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -8999,7 +9084,288 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
+                ]
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
                 ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "创建待审核标签",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "标签候选",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.CreateTagCandidateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/tags/candidates/{tag_id}/evidence": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "获取标签候选证据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "标签ID",
+                        "name": "tag_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/tags/candidates/{tag_id}/review": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "审核标签候选",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "标签ID",
+                        "name": "tag_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "审核动作",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.ReviewTagCandidateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/tags/relations": {
+            "get": {
+                "description": "列出知识库中的标签关系；可用 tag_id 限定某个标签的入边和出边",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "获取标签关系",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "标签ID",
+                        "name": "tag_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "description": "建立标签层级、同义或相关关系；IS_A 子标签指向父标签，并拒绝环路",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "创建标签关系",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "关系信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.CreateTagRelationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/tags/relations/{relation_id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "删除标签关系",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "关系ID",
+                        "name": "relation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.SuccessResponse"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/tags/{tag_id}": {
+            "put": {
                 "description": "更新标签信息",
                 "consumes": [
                     "application/json"
@@ -9064,6 +9430,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.update_tag",
                     "label": "name",
@@ -9073,14 +9447,6 @@ const docTemplate = `{
                 "x-agent-hint": "Renames a tag. tag_id comes from knowledge_base.list_tags. A field left out is kept."
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "删除标签，可使用force=true强制删除被引用的标签，content_only=true仅删除标签下的内容而保留标签本身",
                 "consumes": [
                     "application/json"
@@ -9144,6 +9510,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.delete_tag",
                     "label": "name",
@@ -9153,8 +9527,39 @@ const docTemplate = `{
                 "x-agent-hint": "Deletes a tag that no document uses. If documents still use it, this fails; take the tag off them with knowledge.set_tags first. Documents are not deleted."
             }
         },
-        "/knowledge-chat/{session_id}": {
-            "post": {
+        "/knowledge-bases/{id}/tags/{tag_id}/wiki": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "获取标签 Wiki",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "标签ID",
+                        "name": "tag_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    }
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -9162,7 +9567,71 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
+                ]
+            }
+        },
+        "/knowledge-bases/{id}/tags/wiki/search": {
+            "post": {
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "tags": ["标签管理"],
+                "summary": "检索标签 Wiki",
+                "parameters": [
+                    {"type": "string", "description": "知识库ID", "name": "id", "in": "path", "required": true},
+                    {"description": "检索请求", "name": "request", "in": "body", "required": true, "schema": {"$ref": "#/definitions/internal_handler.TagWikiSearchRequest"}}
                 ],
+                "responses": {"200": {"description": "OK", "schema": {"$ref": "#/definitions/internal_handler.DataResponse"}}},
+                "security": [{"Bearer": []}, {"ApiKeyAuth": []}]
+            }
+        },
+        "/knowledge-bases/{id}/tags/{tag_id}/wiki/generate": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "标签管理"
+                ],
+                "summary": "生成标签 Wiki",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "标签ID",
+                        "name": "tag_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.DataResponse"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/knowledge-chat/{session_id}": {
+            "post": {
                 "description": "基于知识库的问答（使用LLM总结），支持SSE流式响应",
                 "consumes": [
                     "application/json"
@@ -9216,11 +9685,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge-search": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -9228,7 +9693,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge-search": {
+            "post": {
                 "description": "在知识库中搜索（不使用LLM总结）。与产品内问答使用同一检索流程（召回、rerank、合并），外部检索首选；可覆盖召回参数与 rerank",
                 "consumes": [
                     "application/json"
@@ -9276,11 +9745,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge/batch": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -9288,7 +9753,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge/batch": {
+            "get": {
                 "description": "根据ID列表批量获取知识条目。可选 kb_id：指定时按该知识库校验权限并用于共享知识库的空间解析；可选 agent_id：使用共享智能体时传此参数，后端按智能体所属空间查询（用于刷新后恢复共享知识库下的文件）",
                 "consumes": [
                     "application/json"
@@ -9353,11 +9822,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge/batch-delete": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -9365,7 +9830,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge/batch-delete": {
+            "post": {
                 "description": "按 ID 列表批量删除单个知识库下的多个知识条目",
                 "consumes": [
                     "application/json"
@@ -9408,6 +9877,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.batch_delete",
                     "items": {
@@ -9425,14 +9902,6 @@ const docTemplate = `{
         },
         "/knowledge/batch-reparse": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "按 ID 列表批量重新解析单个知识库下的多个知识条目",
                 "consumes": [
                     "application/json"
@@ -9475,6 +9944,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.batch_reparse",
                     "label": "name",
@@ -9486,14 +9963,6 @@ const docTemplate = `{
         },
         "/knowledge/folder": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "批量修改知识条目所属文件夹。文件夹由路径推导而来，因此目标路径不存在时会自动创建；空路径表示知识库顶层。仅调整归类，不会重新解析文档",
                 "consumes": [
                     "application/json"
@@ -9548,6 +10017,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.move_to_folder",
                     "label": "name",
@@ -9559,14 +10036,6 @@ const docTemplate = `{
         },
         "/knowledge/image/{id}/{chunk_id}": {
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "更新知识分块的图像信息",
                 "consumes": [
                     "application/json"
@@ -9621,11 +10090,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge/manual/{id}": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -9633,7 +10098,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge/manual/{id}": {
+            "put": {
                 "description": "更新手工录入的Markdown知识内容",
                 "consumes": [
                     "application/json"
@@ -9690,6 +10159,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.update_manual",
                     "label": "title",
@@ -9701,14 +10178,6 @@ const docTemplate = `{
         },
         "/knowledge/move": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "将一条或多条知识从源知识库移动到目标知识库（异步），返回任务 ID 用于查询进度",
                 "consumes": [
                     "application/json"
@@ -9757,6 +10226,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.move",
                     "items": {
@@ -9774,14 +10251,6 @@ const docTemplate = `{
         },
         "/knowledge/move/progress/{task_id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "按任务 ID 查询移动进度",
                 "produces": [
                     "application/json"
@@ -9826,14 +10295,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "knowledge.get_move_progress",
-                    "risk": "read"
-                }
-            }
-        },
-        "/knowledge/search": {
-            "get": {
                 "security": [
                     {
                         "Bearer": []
@@ -9842,6 +10303,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "knowledge.get_move_progress",
+                    "risk": "read"
+                }
+            }
+        },
+        "/knowledge/search": {
+            "get": {
                 "description": "Search knowledge files by keyword. Pass recent=true without a keyword to browse recent files. When agent_id is set (shared agent), scope is the agent's configured knowledge bases.",
                 "consumes": [
                     "application/json"
@@ -9907,11 +10376,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge/tags": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -9919,7 +10384,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge/tags": {
+            "put": {
                 "description": "批量更新知识条目的标签。传 updates，或传 knowledge_ids 与 tag_ids。可选 kb_id：指定时按该知识库校验编辑权限并用于共享知识库的空间解析",
                 "consumes": [
                     "application/json"
@@ -9956,6 +10425,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.set_tags",
                     "items": {
@@ -9973,14 +10450,6 @@ const docTemplate = `{
         },
         "/knowledge/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "根据ID获取知识条目详情",
                 "consumes": [
                     "application/json"
@@ -10040,12 +10509,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "knowledge.get",
-                    "risk": "read"
-                }
-            },
-            "put": {
                 "security": [
                     {
                         "Bearer": []
@@ -10054,6 +10517,12 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "knowledge.get",
+                    "risk": "read"
+                }
+            },
+            "put": {
                 "description": "部分更新知识条目（标题/描述/自定义元数据）；未传字段保持不变，显式传空 description 可清空摘要",
                 "consumes": [
                     "application/json"
@@ -10098,6 +10567,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.update",
                     "label": "title",
@@ -10107,14 +10584,6 @@ const docTemplate = `{
                 "x-agent-hint": "Sets a document's title or summary; a field left out is kept."
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "根据ID异步删除知识条目。请求会被入队到与批量删除相同的异步管道（asynq）；\n接口返回 200 仅表示任务已提交（响应 data.task_id 为任务 ID），实际删除由后台 worker 完成。",
                 "consumes": [
                     "application/json"
@@ -10174,6 +10643,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.delete",
                     "label": "title",
@@ -10185,14 +10662,6 @@ const docTemplate = `{
         },
         "/knowledge/{id}/cancel-parse": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "取消进行中的知识解析任务。当前已写入的 chunk / 索引保留，可通过 reparse 接口重新触发解析。已完成 / 已失败 / 删除中的知识不支持取消。",
                 "consumes": [
                     "application/json"
@@ -10252,6 +10721,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.cancel_parse",
                     "label": "title",
@@ -10262,14 +10739,6 @@ const docTemplate = `{
         },
         "/knowledge/{id}/download": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "下载知识条目关联的原始文件",
                 "consumes": [
                     "application/json"
@@ -10303,11 +10772,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge/{id}/preview": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -10315,7 +10780,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge/{id}/preview": {
+            "get": {
                 "description": "返回知识条目关联的原始文件，Content-Type 根据文件类型设置，用于浏览器内嵌预览",
                 "consumes": [
                     "application/json"
@@ -10352,11 +10821,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledge/{id}/reparse": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -10364,7 +10829,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledge/{id}/reparse": {
+            "post": {
                 "description": "删除知识中现有的文档内容并重新解析，使用异步任务方式处理",
                 "consumes": [
                     "application/json"
@@ -10432,6 +10901,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.reparse",
                     "label": "title",
@@ -10443,14 +10920,6 @@ const docTemplate = `{
         },
         "/knowledge/{id}/spans": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回该知识在解析流水线的 trace tree（root → stage → subspan）：每段状态、耗时、input/output、错误码、langfuse_trace_id。支持 ?attempt=N 查看历史尝试；不传则返回最新尝试。前端用于渲染时间线 + 多模态/embedding 子节点 + 一键跳转 Langfuse。",
                 "consumes": [
                     "application/json"
@@ -10511,6 +10980,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge.get_parse_progress",
                     "risk": "read"
@@ -10520,11 +10997,6 @@ const docTemplate = `{
         },
         "/knowledgebase/{kb_id}/wiki/auto-fix": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Automatically fix fixable wiki issues (broken links, etc.)",
                 "produces": [
                     "application/json"
@@ -10549,16 +11021,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.AutoFixResponse"
                         }
                     }
-                }
-            }
-        },
-        "/knowledgebase/{kb_id}/wiki/folders": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledgebase/{kb_id}/wiki/folders": {
+            "get": {
                 "description": "Retrieve the direct child folders of a parent folder (parent_id empty = root level), each with its page count and a has-children flag for the directory tree.",
                 "produces": [
                     "application/json"
@@ -10598,6 +11070,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "wiki.list_folders",
                     "max_items": 200,
@@ -10607,11 +11084,6 @@ const docTemplate = `{
                 "x-agent-hint": "Direct child folders of parent_id (omit it for the top level), up to 200, with page counts; has_children tells whether to look deeper."
             },
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Create a new (initially empty) directory node under parent_id",
                 "consumes": [
                     "application/json"
@@ -10662,6 +11134,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "wiki.create_folder",
                     "label": "name",
@@ -10673,11 +11150,6 @@ const docTemplate = `{
         },
         "/knowledgebase/{kb_id}/wiki/folders/{folder_id}": {
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Rename and/or reparent a folder; the whole subtree's paths and the affected pages' cached paths are recomputed",
                 "consumes": [
                     "application/json"
@@ -10739,14 +11211,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Delete a folder that has no pages and no child folders",
                 "tags": [
                     "Wiki"
@@ -10784,16 +11256,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledgebase/{kb_id}/wiki/graph": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledgebase/{kb_id}/wiki/graph": {
+            "get": {
                 "description": "Returns a slice of the wiki link graph for visualization. Supports\n` + "`" + `mode=overview` + "`" + ` (top-N most-connected pages, default) and\n` + "`" + `mode=ego` + "`" + ` (BFS neighborhood of a center slug) to keep response\nsize tractable for knowledge bases with tens of thousands of pages.",
                 "produces": [
                     "application/json"
@@ -10848,16 +11320,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.WikiGraphData"
                         }
                     }
-                }
-            }
-        },
-        "/knowledgebase/{kb_id}/wiki/index": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledgebase/{kb_id}/wiki/index": {
+            "get": {
                 "description": "Returns the wiki index as intro text plus per-type paginated\ndirectory groups. The heavy directory markdown that used to\nlive in wiki_pages.content was replaced with this structured\nresponse so a KB with tens of thousands of pages no longer\nmaterializes megabytes of TEXT on every index open.",
                 "produces": [
                     "application/json"
@@ -10900,16 +11372,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.WikiIndexResponse"
                         }
                     }
-                }
-            }
-        },
-        "/knowledgebase/{kb_id}/wiki/issues": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledgebase/{kb_id}/wiki/issues": {
+            "get": {
                 "description": "List issues flagged on wiki pages with optional filtering",
                 "produces": [
                     "application/json"
@@ -10970,6 +11442,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "wiki.list_issues",
                     "risk": "read"
@@ -10979,11 +11456,6 @@ const docTemplate = `{
         },
         "/knowledgebase/{kb_id}/wiki/issues/{issue_id}/status": {
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Update the status of a flagged wiki page issue",
                 "consumes": [
                     "application/json"
@@ -11036,16 +11508,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledgebase/{kb_id}/wiki/lint": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledgebase/{kb_id}/wiki/lint": {
+            "get": {
                 "description": "Perform a comprehensive health check on the wiki",
                 "produces": [
                     "application/json"
@@ -11084,6 +11556,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "wiki.lint",
                     "risk": "read",
@@ -11094,11 +11571,6 @@ const docTemplate = `{
         },
         "/knowledgebase/{kb_id}/wiki/move-page": {
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Relocate a page (identified by slug in the body) into a folder (folder_id empty = root); the page's cached category path is recomputed",
                 "consumes": [
                     "application/json"
@@ -11143,6 +11615,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "wiki.move_page",
                     "label": "title",
@@ -11154,11 +11631,6 @@ const docTemplate = `{
         },
         "/knowledgebase/{kb_id}/wiki/pages": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "List wiki pages with optional filtering and pagination",
                 "produces": [
                     "application/json"
@@ -11231,14 +11703,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "Create a new wiki page in the knowledge base",
                 "consumes": [
                     "application/json"
@@ -11281,16 +11753,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledgebase/{kb_id}/wiki/pages/{slug}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledgebase/{kb_id}/wiki/pages/{slug}": {
+            "get": {
                 "description": "Retrieve a wiki page by its slug, including titles of existing backlinks",
                 "produces": [
                     "application/json"
@@ -11331,6 +11803,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "catch_all": "slug",
                     "id": "wiki.get_page",
@@ -11339,11 +11816,6 @@ const docTemplate = `{
                 "x-agent-hint": "A Wiki page's title, type, status, folder and version. Read its content with the document tools instead."
             },
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Partially update a wiki page by slug. Absent fields keep\ntheir stored value. When ` + "`" + `version` + "`" + ` is \u003e 0 it acts as an\noptimistic-lock guard: a mismatch with the stored version\nreturns 409 together with the current version so the client\ncan reload and re-apply.",
                 "consumes": [
                     "application/json"
@@ -11405,14 +11877,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Soft-delete a wiki page by slug",
                 "tags": [
                     "Wiki"
@@ -11444,16 +11916,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/knowledgebase/{kb_id}/wiki/rebuild-links": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledgebase/{kb_id}/wiki/rebuild-links": {
+            "post": {
                 "description": "Re-parse all pages and rebuild bidirectional link references",
                 "produces": [
                     "application/json"
@@ -11492,6 +11964,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "wiki.rebuild_links",
                     "label": "name",
@@ -11503,11 +11980,6 @@ const docTemplate = `{
         },
         "/knowledgebase/{kb_id}/wiki/revert": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Rolls the page (slug in the body, like move-page) back to\nthe content of the given stored revision. Applied as a\nregular edit: the pre-revert state is snapshotted and the\nversion advances.",
                 "consumes": [
                     "application/json"
@@ -11564,6 +12036,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "wiki.revert",
                     "label": "title",
@@ -11575,11 +12052,6 @@ const docTemplate = `{
         },
         "/knowledgebase/{kb_id}/wiki/revisions/{slug}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Returns the stored historical snapshots for a page, newest\nfirst (content omitted), plus the current version. Passing\n` + "`" + `version` + "`" + ` returns that single snapshot with full content.\n` + "`" + `content_version` + "`" + ` keeps this list envelope and includes that\none revision's content.",
                 "produces": [
                     "application/json"
@@ -11650,6 +12122,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "catch_all": "slug",
                     "id": "wiki.list_revisions",
@@ -11661,11 +12138,6 @@ const docTemplate = `{
         },
         "/knowledgebase/{kb_id}/wiki/search": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Full-text search over wiki pages",
                 "produces": [
                     "application/json"
@@ -11706,16 +12178,16 @@ const docTemplate = `{
                             }
                         }
                     }
-                }
-            }
-        },
-        "/knowledgebase/{kb_id}/wiki/stats": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/knowledgebase/{kb_id}/wiki/stats": {
+            "get": {
                 "description": "Returns aggregate statistics about the wiki",
                 "produces": [
                     "application/json"
@@ -11754,6 +12226,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "wiki.get_stats",
                     "risk": "read"
@@ -11762,14 +12239,6 @@ const docTemplate = `{
         },
         "/mcp-endpoints": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -11785,9 +12254,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -11795,7 +12262,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "为当前工作空间发布一个 MCP 端点，响应中的 token 只返回一次",
                 "consumes": [
                     "application/json"
@@ -11833,11 +12302,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/mcp-endpoints/tools": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -11845,7 +12310,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-endpoints/tools": {
+            "get": {
                 "description": "返回工作空间 MCP 端点可勾选的工具清单、分组和默认勾选项",
                 "produces": [
                     "application/json"
@@ -11862,11 +12331,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/mcp-endpoints/{endpoint_id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -11874,7 +12339,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-endpoints/{endpoint_id}": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
@@ -11906,9 +12375,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -11916,7 +12383,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "consumes": [
                     "application/json"
                 ],
@@ -11967,9 +12436,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -11977,7 +12444,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "produces": [
                     "application/json"
                 ],
@@ -12008,11 +12477,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/mcp-endpoints/{endpoint_id}/rotate-token": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -12020,7 +12485,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-endpoints/{endpoint_id}/rotate-token": {
+            "post": {
                 "description": "生成新令牌并立即作废旧令牌，响应中的 token 只返回一次",
                 "produces": [
                     "application/json"
@@ -12053,11 +12522,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/mcp-services": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -12065,7 +12530,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-services": {
+            "get": {
                 "description": "获取当前空间的所有MCP服务（含已保存工具目录数量）",
                 "consumes": [
                     "application/json"
@@ -12126,14 +12595,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "mcp_service.list",
-                    "max_items": 200,
-                    "risk": "read"
-                },
-                "x-agent-hint": "Lists the workspace's MCP services by name, with whether each is enabled. Connection details and credentials are not shown; the user manages MCP services in the settings."
-            },
-            "post": {
                 "security": [
                     {
                         "Bearer": []
@@ -12142,6 +12603,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "mcp_service.list",
+                    "max_items": 200,
+                    "risk": "read"
+                },
+                "x-agent-hint": "Lists the workspace's MCP services by name, with whether each is enabled. Connection details and credentials are not shown; the user manages MCP services in the settings."
+            },
+            "post": {
                 "description": "创建新的MCP服务配置",
                 "consumes": [
                     "application/json"
@@ -12190,6 +12659,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "always_confirm": true,
                     "id": "mcp_service.create",
@@ -12236,14 +12713,6 @@ const docTemplate = `{
         },
         "/mcp-services/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "根据ID获取MCP服务详情",
                 "consumes": [
                     "application/json"
@@ -12291,12 +12760,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "mcp_service.get",
-                    "risk": "read"
-                }
-            },
-            "put": {
                 "security": [
                     {
                         "Bearer": []
@@ -12305,6 +12768,12 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "mcp_service.get",
+                    "risk": "read"
+                }
+            },
+            "put": {
                 "description": "更新MCP服务配置",
                 "consumes": [
                     "application/json"
@@ -12361,6 +12830,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "mcp_service.update",
                     "label": "name",
@@ -12371,14 +12848,6 @@ const docTemplate = `{
                 "x-agent-hint": "Changes the listed settings of an MCP service; a field left out is kept. Turning a service off stops every agent from using it. Changing url or transport_type drops the API key, token and custom headers saved for the old address, so give the user open_page with mcp_service_id to enter them again; a service that uses OAuth cannot be moved here. Built-in services cannot be changed."
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "删除指定的MCP服务",
                 "consumes": [
                     "application/json"
@@ -12414,6 +12883,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "mcp_service.delete",
                     "label": "name",
@@ -12426,14 +12903,6 @@ const docTemplate = `{
         },
         "/mcp-services/{id}/credentials": {
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "为指定字段写入新凭据；省略的字段保留原值；空字符串视为 no-op（如需删除请用 DELETE）",
                 "consumes": [
                     "application/json"
@@ -12495,11 +12964,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/mcp-services/{id}/credentials/{field}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -12507,7 +12972,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-services/{id}/credentials/{field}": {
+            "delete": {
                 "description": "删除指定字段的存储凭据；删除已为空的字段是幂等的",
                 "produces": [
                     "application/json"
@@ -12548,11 +13017,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/mcp-services/{id}/metadata": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -12560,7 +13025,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-services/{id}/metadata": {
+            "get": {
                 "description": "只读数据库，不连接上游。未同步时 data 为 null；连接配置变更后 stale 为 true。OAuth 目录按当前授权主体隔离。",
                 "consumes": [
                     "application/json"
@@ -12608,6 +13077,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "mcp_service.get_metadata",
                     "risk": "read"
@@ -12617,14 +13094,6 @@ const docTemplate = `{
         },
         "/mcp-services/{id}/metadata/refresh": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "显式连接上游并原子替换完整目录。OAuth 服务写入当前用户的快照，Viewer 及以上可调用；静态认证写入租户共享快照，需要 Admin。",
                 "consumes": [
                     "application/json"
@@ -12690,6 +13159,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "mcp_service.refresh_metadata",
                     "label": "name",
@@ -12702,11 +13179,6 @@ const docTemplate = `{
         },
         "/mcp-services/{id}/oauth/assertion": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "以 JWT Bearer 授权（RFC 7523）提交调用方签发的断言（如 ID-JAG），为当前用户获取并保存令牌，\n无需浏览器跳转。使用该服务已注册的 OAuth 客户端",
                 "consumes": [
                     "application/json"
@@ -12768,16 +13240,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/mcp-services/{id}/oauth/authorize-url": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-services/{id}/oauth/authorize-url": {
+            "post": {
                 "description": "对使用 OAuth 的 MCP 服务执行发现与动态客户端注册，返回浏览器应跳转的授权地址（当前用户维度）",
                 "consumes": [
                     "application/json"
@@ -12822,16 +13294,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/mcp-services/{id}/oauth/status": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-services/{id}/oauth/status": {
+            "get": {
                 "description": "返回当前用户的 OAuth Token 生命周期状态；传 authorization_attempt 时只检查本次授权流程",
                 "produces": [
                     "application/json"
@@ -12863,16 +13335,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/mcp-services/{id}/oauth/token": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-services/{id}/oauth/token": {
+            "delete": {
                 "description": "删除当前用户对指定 MCP 服务的 OAuth 令牌",
                 "produces": [
                     "application/json"
@@ -12894,19 +13366,16 @@ const docTemplate = `{
                     "204": {
                         "description": "No Content"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/mcp-services/{id}/resources": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "获取MCP服务提供的资源列表",
                 "consumes": [
                     "application/json"
@@ -12955,11 +13424,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/mcp-services/{id}/test": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -12967,7 +13432,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-services/{id}/test": {
+            "post": {
                 "description": "测试MCP服务是否可以正常连接",
                 "consumes": [
                     "application/json"
@@ -13015,6 +13484,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "mcp_service.test",
                     "risk": "probe",
@@ -13025,14 +13502,6 @@ const docTemplate = `{
         },
         "/mcp-services/{id}/tool-approvals/{tool_name}": {
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "为指定 MCP 服务下的某个工具更新启用状态、人工审批要求和/或风险等级。\n至少提供 require_approval、enabled、risk 之一；省略的字段保持原值。\nrisk 为 read/probe/write/destructive，空字符串表示改回按服务注解推断。",
                 "consumes": [
                     "application/json"
@@ -13089,11 +13558,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/mcp-services/{id}/tools": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -13101,7 +13566,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/mcp-services/{id}/tools": {
+            "get": {
                 "description": "获取MCP服务提供的工具列表",
                 "consumes": [
                     "application/json"
@@ -13152,6 +13621,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "mcp_service.list_tools",
                     "max_items": 200,
@@ -13162,11 +13639,6 @@ const docTemplate = `{
         },
         "/me/env-vars": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "List every sandbox config of this workspace with the caller's own config-wide variables and the credentials its skills declared, each reporting whether it is unset, filled in workspace-wide, or filled in by the caller. Values are never returned.",
                 "produces": [
                     "application/json"
@@ -13204,16 +13676,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/me/env-vars/sandbox": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/me/env-vars/sandbox": {
+            "put": {
                 "description": "Store the caller's own value for one variable on a sandbox config. It is injected into every skill script and shell command this caller's turns run on that config.",
                 "consumes": [
                     "application/json"
@@ -13249,14 +13721,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Remove the caller's own value for one variable on a sandbox config.",
                 "consumes": [
                     "application/json"
@@ -13292,16 +13764,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/me/env-vars/skill": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/me/env-vars/skill": {
+            "put": {
                 "description": "Store the caller's own value for one variable the skill declared. It overrides the workspace-wide value for this caller only, and is injected only into executions that name this skill.",
                 "consumes": [
                     "application/json"
@@ -13337,14 +13809,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Remove the caller's own value. The workspace-wide value, if there is one, applies again afterwards.",
                 "consumes": [
                     "application/json"
@@ -13380,16 +13852,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/me/invitations": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/me/invitations": {
+            "get": {
                 "description": "返回当前登录用户的待接受邀请（默认仅 pending），用于头像入口和 /invitations 收件箱页。",
                 "produces": [
                     "application/json"
@@ -13414,16 +13886,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/me/invitations/accept-by-token": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/me/invitations/accept-by-token": {
+            "post": {
                 "description": "已登录用户用共享邀请链接 token 加入空间，不创建新账号；对已是成员的用户幂等。",
                 "consumes": [
                     "application/json"
@@ -13460,16 +13932,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/me/invitations/pending-count": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/me/invitations/pending-count": {
+            "get": {
                 "description": "轻量级 endpoint，返回当前登录用户的 pending 邀请数，用于头像旁的角标轮询。",
                 "produces": [
                     "application/json"
@@ -13486,16 +13958,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/me/invitations/{inv_id}/accept": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/me/invitations/{inv_id}/accept": {
+            "post": {
                 "description": "当前登录用户接受一条 pending 邀请；服务端会同时写入 tenant_members 行。",
                 "produces": [
                     "application/json"
@@ -13521,16 +13993,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/me/invitations/{inv_id}/decline": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/me/invitations/{inv_id}/decline": {
+            "post": {
                 "description": "当前登录用户拒绝一条 pending 邀请；不创建 tenant_members 行。",
                 "produces": [
                     "application/json"
@@ -13555,16 +14027,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/consolidate": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/consolidate": {
+            "post": {
                 "description": "合并意思接近的条目、归档到期事项，不等待每日后台整理",
                 "produces": [
                     "application/json"
@@ -13592,16 +14064,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/memory/documents": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/documents": {
+            "get": {
                 "description": "返回当前用户回答里反复引用的文档，次数未达习惯门槛的不展示",
                 "produces": [
                     "application/json"
@@ -13632,16 +14104,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.ListDocumentsResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/documents/{id}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/documents/{id}": {
+            "delete": {
                 "description": "删除一条文档亲和度计数，之后检索不再因为这份文档而加权",
                 "produces": [
                     "application/json"
@@ -13666,16 +14138,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/export": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/export": {
+            "get": {
                 "description": "以 JSON 导出当前用户的全部记忆",
                 "produces": [
                     "application/json"
@@ -13691,16 +14163,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.ExportResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/items": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/items": {
+            "get": {
                 "description": "分页返回当前用户的记忆条目，可按状态过滤",
                 "produces": [
                     "application/json"
@@ -13743,14 +14215,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.ListItemsResponse"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "手动添加一条长期记忆",
                 "consumes": [
                     "application/json"
@@ -13792,14 +14264,14 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "永久删除当前用户的全部记忆",
                 "produces": [
                     "application/json"
@@ -13815,16 +14287,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.ClearResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/items/{id}": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/items/{id}": {
+            "put": {
                 "description": "修改记忆内容与重要度，修改后该条记忆不会被后台抽取覆盖",
                 "consumes": [
                     "application/json"
@@ -13873,14 +14345,14 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "永久删除一条记忆",
                 "produces": [
                     "application/json"
@@ -13905,16 +14377,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/items/{id}/confirm": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/items/{id}/confirm": {
+            "post": {
                 "description": "接受系统推断的记忆，使其开始生效",
                 "produces": [
                     "application/json"
@@ -13951,16 +14423,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/memory/items/{id}/reject": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/items/{id}/reject": {
+            "post": {
                 "description": "拒绝系统推断的记忆，并记住这次拒绝",
                 "produces": [
                     "application/json"
@@ -13985,16 +14457,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/settings": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/settings": {
+            "get": {
                 "description": "返回合并后的记忆开关状态（空间级 + 个人级）与记忆条数",
                 "produces": [
                     "application/json"
@@ -14022,14 +14494,14 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "开启或关闭当前用户自己的长期记忆",
                 "consumes": [
                     "application/json"
@@ -14071,16 +14543,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/memory/topics": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/topics": {
+            "get": {
                 "description": "返回已计数、尚未提升为长期关注的主题，以及距离阈值还差几次",
                 "produces": [
                     "application/json"
@@ -14111,16 +14583,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.ListTopicsResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/topics/{id}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/topics/{id}": {
+            "delete": {
                 "description": "删除尚未提升的主题计数，并记住这次拒绝，之后不会再自动记为长期关注",
                 "produces": [
                     "application/json"
@@ -14145,16 +14617,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
-            }
-        },
-        "/memory/topics/{id}/promote": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/memory/topics/{id}/promote": {
+            "post": {
                 "description": "不等待剩余次数，把正在观察的主题提升为一条长期关注记忆",
                 "produces": [
                     "application/json"
@@ -14191,19 +14663,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/messages/chat-history-stats": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "获取聊天历史知识库的统计信息（已索引消息数、知识库大小等）",
                 "consumes": [
                     "application/json"
@@ -14235,6 +14704,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "message.chat_history_stats",
                     "risk": "read"
@@ -14244,14 +14721,6 @@ const docTemplate = `{
         },
         "/messages/search": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "通过关键词和/或向量相似度搜索历史对话记录，支持关键词、向量、混合三种模式",
                 "consumes": [
                     "application/json"
@@ -14300,6 +14769,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "message.search",
                     "max_items": 20,
@@ -14311,14 +14788,6 @@ const docTemplate = `{
         },
         "/messages/{session_id}/load": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "加载会话的消息历史，支持分页和时间筛选",
                 "consumes": [
                     "application/json"
@@ -14397,6 +14866,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "message.list",
                     "risk": "read"
@@ -14406,14 +14883,6 @@ const docTemplate = `{
         },
         "/messages/{session_id}/{id}": {
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "从会话中删除指定消息",
                 "consumes": [
                     "application/json"
@@ -14454,11 +14923,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/models": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -14466,7 +14931,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/models": {
+            "get": {
                 "description": "获取当前空间的所有模型",
                 "consumes": [
                     "application/json"
@@ -14507,14 +14976,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "model.list",
-                    "max_items": 200,
-                    "risk": "read"
-                },
-                "x-agent-hint": "Lists the workspace's models by name, type and provider. An agent's chat model must be of type KnowledgeQA. base_url is shown only to users who may manage integrations and is empty for builtin models; keys are never shown. The provider is an id for model.get_provider."
-            },
-            "post": {
                 "security": [
                     {
                         "Bearer": []
@@ -14523,6 +14984,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "model.list",
+                    "max_items": 200,
+                    "risk": "read"
+                },
+                "x-agent-hint": "Lists the workspace's models by name, type and provider. An agent's chat model must be of type KnowledgeQA. base_url is shown only to users who may manage integrations and is empty for builtin models; keys are never shown. The provider is an id for model.get_provider."
+            },
+            "post": {
                 "description": "创建新的模型配置",
                 "consumes": [
                     "application/json"
@@ -14570,11 +15039,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/models/catalog/resolve": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -14582,7 +15047,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/models/catalog/resolve": {
+            "get": {
                 "description": "根据厂商、模型名、Base URL 与 extra_config 返回目录解析结果（协议、思考等级、上下文等），供模型编辑器实时展示",
                 "consumes": [
                     "application/json"
@@ -14629,11 +15098,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/models/providers": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -14641,7 +15106,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/models/providers": {
+            "get": {
                 "description": "根据模型类型获取支持的厂商定义（含图标、默认地址、额外字段、内置模型目录与思考能力）",
                 "consumes": [
                     "application/json"
@@ -14692,6 +15161,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "model.list_providers",
                     "max_items": 200,
@@ -14702,14 +15179,6 @@ const docTemplate = `{
         },
         "/models/providers/{provider}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回一个厂商的定义及其模型目录，可按模型类型与关键词过滤模型",
                 "consumes": [
                     "application/json"
@@ -14784,6 +15253,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "model.get_provider",
                     "risk": "read"
@@ -14793,14 +15270,6 @@ const docTemplate = `{
         },
         "/models/weknoracloud/status": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "检查当前空间的 WeKnoraCloud 凭证是否完好；needs_reinit=true 表示需要重新保存",
                 "produces": [
                     "application/json"
@@ -14823,11 +15292,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/models/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -14835,7 +15300,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/models/{id}": {
+            "get": {
                 "description": "根据ID获取模型详情",
                 "consumes": [
                     "application/json"
@@ -14883,12 +15352,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "model.get",
-                    "risk": "read"
-                }
-            },
-            "put": {
                 "security": [
                     {
                         "Bearer": []
@@ -14897,6 +15360,12 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "model.get",
+                    "risk": "read"
+                }
+            },
+            "put": {
                 "description": "更新模型配置信息",
                 "consumes": [
                     "application/json"
@@ -14951,9 +15420,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -14961,7 +15428,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "删除指定的模型",
                 "consumes": [
                     "application/json"
@@ -15003,6 +15472,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "model.delete",
                     "label": "name",
@@ -15013,14 +15490,6 @@ const docTemplate = `{
                 "x-agent-hint": "Deletes a model with its saved key. Refused while a knowledge base, agent or long-term memory still uses it; the error names them, so tell the user what to switch first. Cannot be undone."
             },
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "只修改显示名称和描述；接入配置与凭据保持不变。",
                 "consumes": [
                     "application/json"
@@ -15089,6 +15558,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "model.update",
                     "label": "name",
@@ -15101,14 +15578,6 @@ const docTemplate = `{
         },
         "/models/{id}/copy": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "复制模型配置。name 与源模型一致，凭证从已存记录复制，不接受客户端重传。",
                 "consumes": [
                     "application/json"
@@ -15171,6 +15640,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "model.copy",
                     "label": "name",
@@ -15183,11 +15660,6 @@ const docTemplate = `{
         },
         "/notifications": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -15223,16 +15695,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/notifications/read": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/notifications/read": {
+            "post": {
                 "description": "ids 为空时将全部通知记录标为已读，不改变待处理事项",
                 "consumes": [
                     "application/json"
@@ -15262,14 +15734,14 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "produces": [
                     "application/json"
                 ],
@@ -15285,16 +15757,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/organizations": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations": {
+            "get": {
                 "description": "获取当前空间所属的所有组织，并附带各空间内知识库/智能体数量",
                 "produces": [
                     "application/json"
@@ -15310,14 +15782,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.ListOrganizationsResponse"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "创建新的组织，创建者自动成为管理员",
                 "consumes": [
                     "application/json"
@@ -15365,16 +15837,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/join": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/join": {
+            "post": {
                 "description": "使用邀请码加入组织",
                 "consumes": [
                     "application/json"
@@ -15422,16 +15894,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/join-by-id": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/join-by-id": {
+            "post": {
                 "description": "加入已开放可被搜索的空间，无需邀请码",
                 "consumes": [
                     "application/json"
@@ -15479,16 +15951,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/join-request": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/join-request": {
+            "post": {
                 "description": "对需要审核的组织提交加入申请",
                 "consumes": [
                     "application/json"
@@ -15536,16 +16008,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/preview/{code}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/preview/{code}": {
+            "get": {
                 "description": "通过邀请码获取组织基本信息（不加入）",
                 "produces": [
                     "application/json"
@@ -15577,16 +16049,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/search": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/search": {
+            "get": {
                 "description": "搜索已开放可被搜索的空间，用于发现并加入",
                 "produces": [
                     "application/json"
@@ -15617,16 +16089,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SearchOrganizationsResponse"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}": {
+            "get": {
                 "description": "根据ID获取组织详情",
                 "produces": [
                     "application/json"
@@ -15669,14 +16141,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "更新组织信息（需要管理员权限）",
                 "consumes": [
                     "application/json"
@@ -15731,14 +16203,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "删除组织（仅组织创建者可操作）",
                 "tags": [
                     "组织管理"
@@ -15766,19 +16238,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/organizations/{id}/agent-shares": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回所有被共享到指定组织的智能体（含我的有效权限）",
                 "produces": [
                     "application/json"
@@ -15810,16 +16279,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/organizations/{id}/invite": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "管理员直接添加用户为组织成员",
                 "consumes": [
                     "application/json"
@@ -15868,16 +16340,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/invite-code": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/invite-code": {
+            "post": {
                 "description": "生成新的组织邀请码（需要管理员权限）",
                 "produces": [
                     "application/json"
@@ -15909,16 +16381,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/join-requests": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/join-requests": {
+            "get": {
                 "description": "获取组织的待审核加入申请（仅管理员）",
                 "produces": [
                     "application/json"
@@ -15961,16 +16433,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/join-requests/{request_id}/review": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/join-requests/{request_id}/review": {
+            "put": {
                 "description": "通过或拒绝加入申请（仅管理员）",
                 "consumes": [
                     "application/json"
@@ -16020,16 +16492,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/leave": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/leave": {
+            "post": {
                 "description": "退出指定组织",
                 "tags": [
                     "组织管理"
@@ -16057,16 +16529,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/members": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/members": {
+            "get": {
                 "description": "获取组织的所有成员（按空间）",
                 "produces": [
                     "application/json"
@@ -16091,16 +16563,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.ListMembersResponse"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/members/{tenant_id}": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/members/{tenant_id}": {
+            "put": {
                 "description": "更新组织成员（空间）的角色（需要管理员权限）",
                 "consumes": [
                     "application/json"
@@ -16150,14 +16622,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "从组织中移除成员空间（需要管理员权限）",
                 "tags": [
                     "组织管理"
@@ -16192,16 +16664,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/request-upgrade": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/request-upgrade": {
+            "post": {
                 "description": "现有成员申请更高权限",
                 "consumes": [
                     "application/json"
@@ -16256,16 +16728,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/search-tenants": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/search-tenants": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
@@ -16311,7 +16783,12 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/organizations/{id}/search-users": {
@@ -16322,11 +16799,6 @@ const docTemplate = `{
         },
         "/organizations/{id}/shared-agents": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "获取指定空间下所有共享智能体，包含他人共享的与我共享的，用于列表页空间视角",
                 "produces": [
                     "application/json"
@@ -16351,16 +16823,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.ListOrganizationSharedAgentsResponse"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/shared-knowledge-bases": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/shared-knowledge-bases": {
+            "get": {
                 "description": "获取指定空间下所有共享知识库，包含直接共享的与通过共享智能体可见的，用于列表页空间视角",
                 "produces": [
                     "application/json"
@@ -16385,16 +16857,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.ListOrganizationSharedKnowledgeBasesResponse"
                         }
                     }
-                }
-            }
-        },
-        "/organizations/{id}/shares": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/organizations/{id}/shares": {
+            "get": {
                 "description": "获取共享到指定组织的所有知识库",
                 "produces": [
                     "application/json"
@@ -16419,19 +16891,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.ListSharesResponse"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/sandbox-configs": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "List workspace sandbox backend configs with credentials masked.",
                 "produces": [
                     "application/json"
@@ -16455,9 +16924,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -16465,7 +16932,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "Create a named workspace sandbox backend config. Credentials are masked in the response.",
                 "consumes": [
                     "application/json"
@@ -16520,11 +16989,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -16532,7 +16997,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}": {
+            "get": {
                 "description": "Retrieve a workspace sandbox backend config with credentials masked.",
                 "produces": [
                     "application/json"
@@ -16582,9 +17051,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -16592,7 +17059,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "Update a sandbox backend config. Identity-field changes are refused while the config owns live or paused sandboxes.",
                 "consumes": [
                     "application/json"
@@ -16674,9 +17143,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -16684,7 +17151,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Soft-delete a sandbox backend config. force=true only overrides unverifiable provider inventory, never confirmed live sandboxes.",
                 "produces": [
                     "application/json"
@@ -16729,11 +17198,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/sandboxes": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -16741,7 +17206,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/sandboxes": {
+            "get": {
                 "description": "Return live/paused sandbox inventory and affected agent names for one config.",
                 "produces": [
                     "application/json"
@@ -16785,11 +17254,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/skills": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -16797,7 +17262,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/skills": {
+            "get": {
                 "description": "List the agent skills installed onto one sandbox config's image.",
                 "produces": [
                     "application/json"
@@ -16852,6 +17321,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "skill.list_installed",
                     "max_items": 200,
@@ -16861,14 +17338,6 @@ const docTemplate = `{
                 "x-agent-hint": "Lists every skill installed on a sandbox, including disabled, failed and still-installing ones, with the ids that skill.set_enabled and skill.uninstall take. status ready means it can run; missing_envs names values the user must set in the skill settings before it works. Use skill.list for what an agent can pick."
             },
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Install a skill onto this sandbox config's image. Send a zip\nas multipart form field \"file\", or JSON {\"source\":\"...\"} to\npull a public skill. source is one of: \"@owner/slug\" or a\nslash-free slug (ClawHub), a github.com / gitlab.com /\nskills.sh / clawhub / skillhub URL, a ClawHub skills-sh\ncatalog page (https://clawhub.ai/skills-sh/owner/repo/slug),\na skills-sh:owner/repo/slug locator, or a direct zip/SKILL.md\nURL. Bare \"owner/slug\" is rejected as ambiguous. The source\nmust be readable anonymously. The install boots a sandbox and\nruns for minutes, so the request is only accepted; follow it\nvia the install-events stream.",
                 "consumes": [
                     "application/json",
@@ -16944,6 +17413,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "always_confirm": true,
                     "id": "skill.install",
@@ -16956,14 +17433,6 @@ const docTemplate = `{
         },
         "/sandbox-configs/{id}/skills/{skillId}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Retrieve one installed skill of a sandbox config.",
                 "produces": [
                     "application/json"
@@ -17023,14 +17492,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "skill.get_installed",
-                    "risk": "read",
-                    "role": "admin"
-                },
-                "x-agent-hint": "Returns one installed skill. After skill.install, read it to follow the install: status moves from installing to ready or failed, and error says why it failed."
-            },
-            "delete": {
                 "security": [
                     {
                         "Bearer": []
@@ -17039,6 +17500,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "skill.get_installed",
+                    "risk": "read",
+                    "role": "admin"
+                },
+                "x-agent-hint": "Returns one installed skill. After skill.install, read it to follow the install: status moves from installing to ready or failed, and error says why it failed."
+            },
+            "delete": {
                 "description": "Remove a skill from the config's image. The removal rebuilds\nthe image and runs for minutes, so it is only accepted; follow\nit via the install-events stream.",
                 "produces": [
                     "application/json"
@@ -17098,6 +17567,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "skill.uninstall",
                     "label": "name",
@@ -17108,14 +17585,6 @@ const docTemplate = `{
                 "x-agent-hint": "Removes a skill from a sandbox image; agents on that sandbox can no longer use it. The rebuild takes minutes. To only hide it, use skill.set_enabled instead."
             },
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Show or hide an installed skill and set the workspace-wide values of the environment variables it declared. Either field may be sent, or both. The files stay in the image either way; removal is a separate flow.",
                 "consumes": [
                     "application/json"
@@ -17193,6 +17662,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "skill.set_enabled",
                     "label": "name",
@@ -17205,14 +17682,6 @@ const docTemplate = `{
         },
         "/sandbox-configs/{id}/skills/{skillId}/files": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "List files in the stored skill bundle without starting a sandbox.",
                 "produces": [
                     "application/json"
@@ -17272,11 +17741,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/skills/{skillId}/files/content": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17284,7 +17749,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/skills/{skillId}/files/content": {
+            "get": {
                 "description": "Read one skill file as UTF-8, a small base64 image, or binary.",
                 "produces": [
                     "application/json"
@@ -17354,11 +17823,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/skills/{skillId}/install-events": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17366,7 +17831,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/skills/{skillId}/install-events": {
+            "get": {
                 "description": "Server-sent progress for one install or removal. The stream\nalways terminates: with the run's own terminal event, with one\nderived from the durable status, or with a \"detached\" frame\nwhen it stops following a run that is still going.",
                 "produces": [
                     "text/event-stream"
@@ -17411,11 +17880,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/skills/{skillId}/reinstall": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17423,7 +17888,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/skills/{skillId}/reinstall": {
+            "post": {
                 "description": "Retry a failed install from the stored archive; does not re-upload.",
                 "produces": [
                     "application/json"
@@ -17475,11 +17944,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/skills/{skillId}/stop": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17487,7 +17952,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/skills/{skillId}/stop": {
+            "post": {
                 "description": "Abort an in-flight install so the operator can retry or uninstall. After a process restart the row may still say installing with no live process; this rewrites it immediately instead of waiting for the stuck-run reaper. Removal is not stopped.",
                 "produces": [
                     "application/json"
@@ -17550,11 +18019,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/skills/{skillId}/transcript": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17562,7 +18027,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/skills/{skillId}/transcript": {
+            "get": {
                 "description": "Server-sent replay of everything the installer agent did — the\nprompt it was given, its thinking, the commands it ran and\ntheir output — followed live while the install is still\nrunning. Frames are the same shape the chat stream uses, so a\nconsole renders an install with the components it renders a\nchat turn with. 404 once the event log has expired; the\ndurable message history is the fallback.",
                 "produces": [
                     "text/event-stream"
@@ -17613,11 +18082,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/user-sandboxes": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17625,7 +18090,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/user-sandboxes": {
+            "get": {
                 "description": "List the config's shared user machines with live session counts and the empty-retention clock.",
                 "produces": [
                     "application/json"
@@ -17658,11 +18127,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/sandbox-configs/{id}/user-sandboxes/{digest}/release": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17670,7 +18135,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sandbox-configs/{id}/user-sandboxes/{digest}/release": {
+            "post": {
                 "description": "Delete one shared user machine now; each session gets a fresh machine on next use. Refused while busy.",
                 "produces": [
                     "application/json"
@@ -17717,11 +18186,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/sessions": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17729,7 +18194,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions": {
+            "get": {
                 "description": "获取当前空间的会话列表，支持分页、关键字搜索、按来源/Agent 筛选",
                 "consumes": [
                     "application/json"
@@ -17805,13 +18274,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "session.list",
-                    "risk": "read"
-                },
-                "x-agent-hint": "The user's own conversations, pinned ones first, then most recently active. keyword matches titles only, which are often auto-generated; to find a conversation by what was said, use message.search. Read one with message.list."
-            },
-            "post": {
                 "security": [
                     {
                         "Bearer": []
@@ -17820,6 +18282,13 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "session.list",
+                    "risk": "read"
+                },
+                "x-agent-hint": "The user's own conversations, pinned ones first, then most recently active. keyword matches titles only, which are often auto-generated; to find a conversation by what was said, use message.search. Read one with message.list."
+            },
+            "post": {
                 "description": "创建新的对话会话。\nkind 为空时为普通会话，assistant 为助手会话。",
                 "consumes": [
                     "application/json"
@@ -17856,11 +18325,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/batch": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17868,7 +18333,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/batch": {
+            "delete": {
                 "description": "根据ID列表批量删除对话会话，或设置 delete_all=true 删除当前空间的所有会话",
                 "consumes": [
                     "application/json"
@@ -17905,11 +18374,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/continue-stream/{session_id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17917,7 +18382,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/continue-stream/{session_id}": {
+            "get": {
                 "description": "继续获取正在进行的流式响应",
                 "consumes": [
                     "application/json"
@@ -17981,11 +18450,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -17993,7 +18458,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{id}": {
+            "get": {
                 "description": "根据ID获取会话详情",
                 "consumes": [
                     "application/json"
@@ -18028,9 +18497,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18038,7 +18505,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "更新会话属性",
                 "consumes": [
                     "application/json"
@@ -18082,9 +18551,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18092,7 +18559,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "删除指定的会话",
                 "consumes": [
                     "application/json"
@@ -18127,11 +18596,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{id}/messages": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18139,7 +18604,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{id}/messages": {
+            "delete": {
                 "description": "删除会话中的所有消息，同时清除 LLM 上下文和聊天历史知识库条目。会话本身保留。",
                 "consumes": [
                     "application/json"
@@ -18180,11 +18649,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{id}/pin": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18192,7 +18657,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{id}/pin": {
+            "delete": {
                 "description": "取消指定会话的置顶",
                 "produces": [
                     "application/json"
@@ -18224,11 +18693,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{id}/steer": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18236,7 +18701,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{id}/steer": {
+            "get": {
                 "description": "刷新页面后用来恢复输入框上方的队列。没有正在运行的 turn 时返回空列表。",
                 "produces": [
                     "application/json"
@@ -18274,11 +18743,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{id}/steer/{steer_id}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18286,7 +18751,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{id}/steer/{steer_id}": {
+            "delete": {
                 "description": "从当前运行的排队列表里去掉一条，不再注入也不再作为 follow-up 发出。",
                 "produces": [
                     "application/json"
@@ -18331,16 +18800,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/sessions/{session_id}/artifacts": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "返回本会话中所有 assistant 消息产生的技能产物元数据（不含 URL）",
                 "produces": [
                     "application/json"
@@ -18372,19 +18844,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/sessions/{session_id}/fork": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "从指定的用户或助手消息处分叉出一个新会话。用户消息：复制其之前的历史并预填该问题；助手消息：复制含该回答在内的历史，从该轮沙箱状态继续。",
                 "consumes": [
                     "application/json"
@@ -18440,7 +18909,15 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/sessions/{session_id}/messages/{message_id}/artifacts": {
@@ -18450,11 +18927,6 @@ const docTemplate = `{
         },
         "/sessions/{session_id}/messages/{message_id}/artifacts/{index}": {
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "删除某条 assistant 消息生成的单个文件；all_versions=true 时连同本会话中该文件的所有历史版本一并删除",
                 "produces": [
                     "application/json"
@@ -18506,7 +18978,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/sessions/{session_id}/messages/{message_id}/artifacts/{index}/download": {
@@ -18516,14 +18993,6 @@ const docTemplate = `{
         },
         "/sessions/{session_id}/messages/{message_id}/suggestions": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -18566,9 +19035,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18576,7 +19043,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "对已完成的助手消息异步生成或重新生成推荐问题；相同配置快照会复用持久化结果",
                 "consumes": [
                     "application/json"
@@ -18649,11 +19118,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{session_id}/pin": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18661,7 +19126,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{session_id}/pin": {
+            "post": {
                 "description": "将指定会话置顶（用户维度）",
                 "produces": [
                     "application/json"
@@ -18693,11 +19162,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{session_id}/rewind": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18705,7 +19170,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{session_id}/rewind": {
+            "post": {
                 "description": "回滚当前会话到指定用户或助手消息：删除其后消息，可到达时 git reset 工作区。",
                 "consumes": [
                     "application/json"
@@ -18767,11 +19236,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{session_id}/steer": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18779,7 +19244,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{session_id}/steer": {
+            "post": {
                 "description": "向运行中的 agent turn 追加用户消息（after 排队 / inject 注入）。无活 turn 时返回 new_run。",
                 "consumes": [
                     "application/json"
@@ -18835,11 +19304,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{session_id}/steer/{steer_id}/inject": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18847,7 +19312,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{session_id}/steer/{steer_id}/inject": {
+            "post": {
                 "description": "把一条 delivery=after 的排队消息改为 inject，运行中的 agent 会在下一轮边界读到它。",
                 "produces": [
                     "application/json"
@@ -18898,11 +19367,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{session_id}/stop": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18910,7 +19375,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{session_id}/stop": {
+            "post": {
                 "description": "停止当前正在进行的生成任务",
                 "consumes": [
                     "application/json"
@@ -18954,11 +19423,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/sessions/{session_id}/suggestion-events": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -18966,7 +19431,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{session_id}/suggestion-events": {
+            "post": {
                 "description": "记录曝光、点击或关闭事件",
                 "consumes": [
                     "application/json"
@@ -18997,11 +19466,7 @@ const docTemplate = `{
                     "204": {
                         "description": "No Content"
                     }
-                }
-            }
-        },
-        "/sessions/{session_id}/title": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19009,7 +19474,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/sessions/{session_id}/title": {
+            "post": {
                 "description": "根据消息内容自动生成会话标题",
                 "consumes": [
                     "application/json"
@@ -19053,11 +19522,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/shared-agents": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19065,7 +19530,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/shared-agents": {
+            "get": {
                 "description": "返回所有共享给当前用户所在组织的智能体",
                 "produces": [
                     "application/json"
@@ -19087,16 +19556,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/shared-knowledge-bases": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "获取通过组织共享给当前用户的所有知识库",
                 "produces": [
                     "application/json"
@@ -19113,6 +19585,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "knowledge_base.list_shared",
                     "max_items": 200,
@@ -19123,14 +19600,6 @@ const docTemplate = `{
         },
         "/skills": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回指定沙箱配置镜像内、智能体实际能调用的已安装技能（ready 且启用）。\n不传 sandbox_config_id 时列表为空。",
                 "consumes": [
                     "application/json"
@@ -19178,6 +19647,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "skill.list",
                     "risk": "read"
@@ -19187,14 +19664,6 @@ const docTemplate = `{
         },
         "/skills/catalog": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Returns every skill definition in this workspace and which sandbox configs it is installed on.",
                 "produces": [
                     "application/json"
@@ -19226,6 +19695,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "skill.list_catalog",
                     "max_items": 200,
@@ -19259,14 +19736,6 @@ const docTemplate = `{
         },
         "/skills/catalog/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Returns one skill definition of this workspace and which sandbox configs it is installed on.",
                 "produces": [
                     "application/json"
@@ -19311,6 +19780,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "skill.get_catalog",
                     "risk": "read"
@@ -19434,14 +19911,6 @@ const docTemplate = `{
         },
         "/skills/catalog/{id}/install": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Runs the existing snapshot install onto each named sandbox config.",
                 "consumes": [
                     "application/json"
@@ -19480,6 +19949,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "always_confirm": true,
                     "id": "skill.install_catalog",
@@ -19494,14 +19971,6 @@ const docTemplate = `{
         },
         "/storage-backends": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "List all storage backend instances for the current workspace, with credentials masked. The workspace default backend id is returned alongside the list.",
                 "produces": [
                     "application/json"
@@ -19524,9 +19993,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19534,7 +20001,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "Register a new object/file storage instance for the current workspace. The configuration is validated and a connectivity test is run before the backend is persisted.",
                 "consumes": [
                     "application/json"
@@ -19595,11 +20064,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/storage-backends/test": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19607,7 +20072,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/storage-backends/test": {
+            "post": {
                 "description": "Test connectivity for the provided storage configuration without persisting it. Returns success=false with a sanitized error message on failure (the HTTP status stays 200).",
                 "consumes": [
                     "application/json"
@@ -19650,11 +20119,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/storage-backends/types": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19662,7 +20127,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/storage-backends/types": {
+            "get": {
                 "description": "Return the storage provider types allowed by STORAGE_ALLOW_LIST for UI form generation (e.g. local, minio, cos, tos, s3, oss, ks3, obs).",
                 "produces": [
                     "application/json"
@@ -19693,11 +20162,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/storage-backends/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19705,7 +20170,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/storage-backends/{id}": {
+            "get": {
                 "description": "Retrieve a single storage backend by ID for the current workspace. Credentials are masked.",
                 "produces": [
                     "application/json"
@@ -19755,9 +20224,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19765,7 +20232,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "Update a storage backend's mutable fields (name, credentials, status). Provider and physical location (endpoint, region, bucket, path prefix) are immutable; use storage migration to move data. Environment-sourced backends are read-only. Redacted secret placeholders preserve the stored credentials.",
                 "consumes": [
                     "application/json"
@@ -19833,9 +20302,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19843,7 +20310,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Soft-delete a storage backend. A backend that is the workspace default, still bound to knowledge bases, environment-sourced, or a legacy alias cannot be deleted.",
                 "produces": [
                     "application/json"
@@ -19887,11 +20356,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/storage-backends/{id}/default": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19899,7 +20364,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/storage-backends/{id}/default": {
+            "put": {
                 "description": "Mark a storage backend as the workspace default. Only an active backend can become the default. New knowledge bases without an explicit binding use the default.",
                 "produces": [
                     "application/json"
@@ -19943,11 +20412,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/storage-backends/{id}/test": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -19955,7 +20420,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/storage-backends/{id}/test": {
+            "post": {
                 "description": "Test connectivity of an existing saved storage backend using its stored credentials. Returns success=false with a sanitized error message on failure (the HTTP status stays 200).",
                 "produces": [
                     "application/json"
@@ -19993,16 +20462,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/system/admin/api-keys": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Lists non-workspace API keys. Full tokens are always masked. Human SystemAdmin only.",
                 "produces": [
                     "application/json"
@@ -20033,14 +20505,14 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "Creates a capability-scoped key that may target any workspace through X-Tenant-ID. The plaintext token is returned once. Human SystemAdmin only.",
                 "consumes": [
                     "application/json"
@@ -20082,16 +20554,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/system/admin/api-keys/{key_id}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/system/admin/api-keys/{key_id}": {
+            "delete": {
                 "description": "Immediately revokes a platform API key. Human SystemAdmin only.",
                 "produces": [
                     "application/json"
@@ -20116,19 +20588,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/system/admin/audit-log": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回 system-scope（tenant_id=0）的审计事件，覆盖 system.setting_changed / system.admin_promoted / system.admin_revoked 等 SystemAdmin 操作。按 id 倒序的游标分页。",
                 "produces": [
                     "application/json"
@@ -20182,7 +20651,15 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/system/admin/list": {
@@ -20245,11 +20722,6 @@ const docTemplate = `{
         },
         "/system/admin/model-catalog": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "System administrator JWT only; API keys are not accepted. Returns built-in, deployment and effective\ncatalogs, the current overlay, version/baseline tokens, and the latest 20 published revisions.",
                 "produces": [
                     "application/json"
@@ -20286,14 +20758,14 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "System administrator JWT only; API keys are not accepted. Validates and publishes a new overlay\nrevision using the current version and baseline. Stale values return 409. To restore a historical\nconfiguration, submit its overlay with the current version and baseline.",
                 "consumes": [
                     "application/json"
@@ -20358,16 +20830,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/system/admin/model-catalog/preview": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/system/admin/model-catalog/preview": {
+            "post": {
                 "description": "System administrator JWT only; API keys are not accepted. Validates the overlay without publishing\nit. Supply the current version and baseline; stale values return 409. The response contains the\ncandidate effective catalog and normalized overlay; history, builtin and deployment are null.",
                 "consumes": [
                     "application/json"
@@ -20432,7 +20904,12 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/system/admin/promote": {
@@ -21383,11 +21860,6 @@ const docTemplate = `{
         },
         "/tenants": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "获取当前用户可访问的空间列表",
                 "consumes": [
                     "application/json"
@@ -21424,14 +21896,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "创建新的空间。任意已登录用户均可调用以建立自己的新工作区，\n调用方会被自动设为该空间的 Owner。跨空间超管仍可像以前一样\n通过本接口创建任意空间。\n当 tenant.auto_create_api_key（或 WEKNORA_TENANT_AUTO_CREATE_API_KEY）\n开启时，会自动创建一个 full_access API Key，并在响应体的 data.api_key 字段返回其明文 token。",
                 "consumes": [
                     "application/json"
@@ -21468,16 +21940,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/all": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/all": {
+            "get": {
                 "description": "获取系统中所有空间（需要跨空间访问权限）",
                 "consumes": [
                     "application/json"
@@ -21514,16 +21986,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/current": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/current": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
@@ -21539,6 +22011,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "workspace.get",
                     "risk": "read"
@@ -21546,11 +22023,6 @@ const docTemplate = `{
                 "x-agent-hint": "Reads the authenticated current workspace only: name, description, status and storage quota/usage in bytes. Does not switch workspaces. Credentials and internal configuration are not returned."
             },
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -21580,6 +22052,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "workspace.update",
                     "label": "name",
@@ -21592,11 +22069,6 @@ const docTemplate = `{
         },
         "/tenants/current/members": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -21654,6 +22126,11 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "x-agent": {
                     "id": "workspace.list_members",
                     "max_items": 50,
@@ -21665,14 +22142,6 @@ const docTemplate = `{
         },
         "/tenants/kv/prompt-templates": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "获取系统配置的提示词模板列表",
                 "consumes": [
                     "application/json"
@@ -21709,11 +22178,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/kv/web-search-config": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -21721,7 +22186,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/kv/web-search-config": {
+            "get": {
                 "description": "获取空间的网络搜索配置",
                 "consumes": [
                     "application/json"
@@ -21758,11 +22227,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/kv/{key}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -21770,8 +22235,12 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
-                "description": "获取空间级别的KV配置（支持web-search-config、prompt-templates、parser-engine-config、storage-engine-config、chat-history-config、retrieval-config）",
+                ]
+            }
+        },
+        "/tenants/kv/{key}": {
+            "get": {
+                "description": "获取空间级别的KV配置。支持 web-search-config、prompt-templates、parser-engine-config、\nstorage-engine-config、chat-history-config、retrieval-config、memory-config、\nassistant-config、default-settings。",
                 "consumes": [
                     "application/json"
                 ],
@@ -21805,9 +22274,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -21815,8 +22282,10 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
-                "description": "更新空间级别的KV配置（支持web-search-config、parser-engine-config、storage-engine-config、chat-history-config、retrieval-config）",
+                ]
+            },
+            "put": {
+                "description": "更新空间级别的KV配置。支持 web-search-config、parser-engine-config、storage-engine-config、\nchat-history-config、retrieval-config、memory-config、assistant-config、default-settings。",
                 "consumes": [
                     "application/json"
                 ],
@@ -21859,11 +22328,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/search": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -21871,7 +22336,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/search": {
+            "get": {
                 "description": "分页搜索空间（需要跨空间访问权限）",
                 "consumes": [
                     "application/json"
@@ -21938,11 +22407,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/{id}": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -21950,7 +22415,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/{id}": {
+            "get": {
                 "description": "根据ID获取空间详情",
                 "consumes": [
                     "application/json"
@@ -22002,14 +22471,17 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "更新空间信息",
                 "consumes": [
                     "application/json"
@@ -22064,14 +22536,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "删除指定的空间",
                 "consumes": [
                     "application/json"
@@ -22105,16 +22577,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/{id}/api-principal-config": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/{id}/api-principal-config": {
+            "get": {
                 "description": "返回 X-API-Key 请求如何映射为终端 Principal 的配置（Owner）",
                 "consumes": [
                     "application/json"
@@ -22166,14 +22638,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "配置 X-API-Key 请求如何映射为终端 Principal（Owner）",
                 "consumes": [
                     "application/json"
@@ -22234,16 +22706,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/{id}/api-principal-test-token": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/{id}/api-principal-test-token": {
+            "post": {
                 "description": "使用空间已保存的 HMAC 密钥签发短期外部用户 JWT（Owner）",
                 "consumes": [
                     "application/json"
@@ -22304,19 +22776,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/tenants/{id}/audit-log": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回该空间最近的审计事件，按 id 倒序。游标分页：将上次响应的 next_cursor 作为下一次请求的 after_id。",
                 "produces": [
                     "application/json"
@@ -22377,16 +22846,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/tenants/{id}/invitations": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "按空间列出待接受 / 历史邀请。query include_terminal=true 时附带 accepted/declined/revoked/expired。",
                 "produces": [
                     "application/json"
@@ -22432,14 +22904,14 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "Owner 通过邮箱邀请已注册用户加入空间。开启 tenant.auto_accept_invitation 后被邀请人立即自动加入（响应为成员结构），否则需在 /me/invitations 接受后成为成员。",
                 "consumes": [
                     "application/json"
@@ -22488,16 +22960,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/tenants/{id}/invitations/{inv_id}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/{id}/invitations/{inv_id}": {
+            "delete": {
                 "description": "Owner 取消一条还在 pending 的邀请；已 accepted/declined/revoked/expired 的行不可再撤销。",
                 "produces": [
                     "application/json"
@@ -22529,16 +23001,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/{id}/invite-links": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/{id}/invite-links": {
+            "post": {
                 "description": "生成一条多次使用的共享邀请链接：谁拿到链接谁就能注册并加入当前空间。\n链接持续有效，直到过期或被撤销。",
                 "consumes": [
                     "application/json"
@@ -22587,16 +23059,16 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/tenants/{id}/leave": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/{id}/leave": {
+            "post": {
                 "description": "调用方主动退出当前空间。等价于以自己的 user_id 调 RemoveMember，",
                 "produces": [
                     "application/json"
@@ -22621,16 +23093,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
-            }
-        },
-        "/tenants/{id}/members": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/{id}/members": {
+            "get": {
                 "description": "分页返回当前空间内 active 成员（含每位成员的角色、邮箱、头像）；支持 q 按邮箱/用户名筛选",
                 "produces": [
                     "application/json"
@@ -22676,14 +23148,14 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -22720,16 +23192,16 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/tenants/{id}/members/{user_id}": {
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            }
+        },
+        "/tenants/{id}/members/{user_id}": {
+            "put": {
                 "description": "Owner 修改某位成员在当前空间内的角色；不能将最后一位 Owner 降级",
                 "consumes": [
                     "application/json"
@@ -22773,14 +23245,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Owner 将某位成员从当前空间中移除（软删除 tenant_members 行）；不能移除最后一位 Owner",
                 "produces": [
                     "application/json"
@@ -22812,7 +23284,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_handler.SuccessResponse"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
             }
         },
         "/user/favorites": {
@@ -22915,14 +23392,6 @@ const docTemplate = `{
         },
         "/vector-stores": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "List all vector stores for the current workspace, including environment-configured and user-created stores",
                 "produces": [
                     "application/json"
@@ -22960,9 +23429,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -22970,7 +23437,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "Create a new vector store configuration for the current workspace",
                 "consumes": [
                     "application/json"
@@ -23031,11 +23500,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
-            }
-        },
-        "/vector-stores/test": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23043,7 +23508,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/vector-stores/test": {
+            "post": {
                 "description": "Test connectivity using provided credentials without persisting. Returns detected server version.",
                 "consumes": [
                     "application/json"
@@ -23086,7 +23555,15 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         },
         "/vector-stores/types": {
@@ -23126,14 +23603,6 @@ const docTemplate = `{
         },
         "/vector-stores/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Retrieve a single vector store by ID. Supports both DB stores and env stores (__env_* IDs)",
                 "produces": [
                     "application/json"
@@ -23184,9 +23653,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23194,7 +23661,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "Update a vector store (name only). Engine type, connection config, and index config are immutable. Env stores cannot be modified.",
                 "consumes": [
                     "application/json"
@@ -23253,9 +23722,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23263,7 +23730,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Soft-delete a vector store. Env stores cannot be deleted.",
                 "produces": [
                     "application/json"
@@ -23309,11 +23778,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/vector-stores/{id}/test": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23321,7 +23786,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/vector-stores/{id}/test": {
+            "post": {
                 "description": "Test connectivity of an existing saved or env store. Returns detected server version. For DB stores, the version is automatically saved to connection_config.",
                 "produces": [
                     "application/json"
@@ -23360,11 +23829,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/web-search-providers": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23372,7 +23837,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/web-search-providers": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
@@ -23403,6 +23872,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "web_search_provider.list",
                     "max_items": 200,
@@ -23413,14 +23890,6 @@ const docTemplate = `{
         },
         "/web-search-providers/test": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "使用前端表单中尚未保存的凭证测试连通性，用于\"测试连接\"按钮",
                 "consumes": [
                     "application/json"
@@ -23457,11 +23926,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/web-search-providers/types": {
-            "get": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23469,7 +23934,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/web-search-providers/types": {
+            "get": {
                 "description": "返回 UI 表单需要的 provider 类型及参数定义",
                 "produces": [
                     "application/json"
@@ -23501,14 +23970,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "web_search_provider.list_types",
-                    "risk": "read"
-                }
-            }
-        },
-        "/web-search-providers/{id}": {
-            "get": {
                 "security": [
                     {
                         "Bearer": []
@@ -23517,6 +23978,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "web_search_provider.list_types",
+                    "risk": "read"
+                }
+            }
+        },
+        "/web-search-providers/{id}": {
+            "get": {
                 "description": "根据 ID 获取指定 provider 配置",
                 "produces": [
                     "application/json"
@@ -23562,12 +24031,6 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-agent": {
-                    "id": "web_search_provider.get",
-                    "risk": "read"
-                }
-            },
-            "put": {
                 "security": [
                     {
                         "Bearer": []
@@ -23576,6 +24039,12 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "x-agent": {
+                    "id": "web_search_provider.get",
+                    "risk": "read"
+                }
+            },
+            "put": {
                 "description": "更新指定 provider 的名称/描述/参数/是否默认",
                 "consumes": [
                     "application/json"
@@ -23627,9 +24096,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23637,7 +24104,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "删除指定 provider 配置",
                 "produces": [
                     "application/json"
@@ -23671,6 +24140,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "web_search_provider.delete",
                     "label": "name",
@@ -23681,14 +24158,6 @@ const docTemplate = `{
                 "x-agent-hint": "Deletes a saved search service and its credential. Agents referring to it may lose search access. Cannot be undone."
             },
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -23738,6 +24207,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "web_search_provider.update",
                     "label": "name",
@@ -23750,14 +24227,6 @@ const docTemplate = `{
         },
         "/web-search-providers/{id}/test": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "使用数据库中已保存的凭证测试连通性",
                 "produces": [
                     "application/json"
@@ -23791,6 +24260,14 @@ const docTemplate = `{
                         }
                     }
                 },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "x-agent": {
                     "id": "web_search_provider.test",
                     "risk": "probe",
@@ -23801,14 +24278,6 @@ const docTemplate = `{
         },
         "/web-search/providers": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "返回所有已注册的网络搜索 provider（含元数据）",
                 "produces": [
                     "application/json"
@@ -23839,11 +24308,7 @@ const docTemplate = `{
                             ]
                         }
                     }
-                }
-            }
-        },
-        "/wechat/qrcode": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23851,7 +24316,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/wechat/qrcode": {
+            "post": {
                 "description": "申请一个用于扫码登录绑定的微信二维码（无请求体）",
                 "produces": [
                     "application/json"
@@ -23875,11 +24344,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/wechat/qrcode/status": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23887,7 +24352,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/wechat/qrcode/status": {
+            "post": {
                 "description": "查询指定二维码是否已被扫描/确认/过期；confirmed 时返回凭证",
                 "consumes": [
                     "application/json"
@@ -23933,11 +24402,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/weknoracloud/credentials": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23945,7 +24410,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/weknoracloud/credentials": {
+            "post": {
                 "description": "保存 APPID/APPSECRET 到当前空间配置（不自动创建模型）",
                 "consumes": [
                     "application/json"
@@ -23983,11 +24452,7 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     }
-                }
-            }
-        },
-        "/wiki-search": {
-            "post": {
+                },
                 "security": [
                     {
                         "Bearer": []
@@ -23995,7 +24460,11 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/wiki-search": {
+            "post": {
                 "description": "Cross-KB wiki search using the same POSIX regex ranking as single-KB wiki search",
                 "consumes": [
                     "application/json"
@@ -24046,7 +24515,15 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
             }
         }
     },
@@ -25131,6 +25608,13 @@ const docTemplate = `{
                         "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_handler_dto.CredentialFieldMetadata"
                     }
                 },
+                "default_for": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "x-agent": true
+                },
                 "description": {
                     "type": "string",
                     "x-agent": true
@@ -25923,6 +26407,13 @@ const docTemplate = `{
         "github_com_Tencent_WeKnora_internal_types.AgentStep": {
             "type": "object",
             "properties": {
+                "approvals": {
+                    "description": "Approvals is the user decision for tools in this step. It is stored with\nthe step so a reloaded transcript can show what was allowed or refused.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.ToolApprovalRecord"
+                    }
+                },
                 "background_injections": {
                     "description": "BackgroundInjections are background-work messages delivered before this\nmodel response, after the step's steered messages, in delivery order.",
                     "type": "array",
@@ -28087,6 +28578,35 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_Tencent_WeKnora_internal_types.DefaultSettings": {
+            "type": "object",
+            "properties": {
+                "asr_model_id": {
+                    "description": "ASRModelID is the default ASR model.",
+                    "type": "string"
+                },
+                "chat_model_id": {
+                    "description": "ChatModelID is the default KnowledgeQA model.",
+                    "type": "string"
+                },
+                "embedding_model_id": {
+                    "description": "EmbeddingModelID is the default Embedding model.",
+                    "type": "string"
+                },
+                "rerank_model_id": {
+                    "description": "RerankModelID is the default Rerank model.",
+                    "type": "string"
+                },
+                "utility_model_id": {
+                    "description": "UtilityModelID is the KnowledgeQA model for short generation tasks\nsuch as writing MCP usage instructions. Empty follows the chat default.",
+                    "type": "string"
+                },
+                "vlm_model_id": {
+                    "description": "VLMModelID is the default VLLM or vision-capable KnowledgeQA model.",
+                    "type": "string"
+                }
+            }
+        },
         "github_com_Tencent_WeKnora_internal_types.DockerSandboxConfig": {
             "type": "object",
             "properties": {
@@ -29266,6 +29786,41 @@ const docTemplate = `{
                 "query": {
                     "description": "User query text",
                     "type": "string"
+                }
+            }
+        },
+        "github_com_Tencent_WeKnora_internal_types.HostApprovalSnapshot": {
+            "type": "object",
+            "properties": {
+                "allow_session": {
+                    "type": "boolean"
+                },
+                "command": {
+                    "type": "string"
+                },
+                "cwd": {
+                    "type": "string"
+                },
+                "denial_snippet": {
+                    "type": "string"
+                },
+                "first_attempt_ran": {
+                    "type": "boolean"
+                },
+                "grant_access": {
+                    "type": "string"
+                },
+                "grant_path": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "session_rules": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -30763,8 +31318,16 @@ const docTemplate = `{
                     "description": "Optional display color",
                     "type": "string"
                 },
+                "confidence": {
+                    "description": "Confidence is the tag extractor's confidence in [0,1].",
+                    "type": "number"
+                },
                 "created_at": {
                     "description": "Creation time",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description is the optional semantic definition for automatic tags.",
                     "type": "string"
                 },
                 "id": {
@@ -30781,6 +31344,10 @@ const docTemplate = `{
                     "type": "string",
                     "x-agent": true
                 },
+                "normalized_name": {
+                    "description": "NormalizedName is the lowercase, trimmed lookup key for deduplication.",
+                    "type": "string"
+                },
                 "seq_id": {
                     "description": "SeqID is an auto-increment integer ID for external API usage",
                     "type": "integer",
@@ -30789,6 +31356,14 @@ const docTemplate = `{
                 "sort_order": {
                     "description": "Sort order within the same knowledge base",
                     "type": "integer"
+                },
+                "source": {
+                    "description": "Source records whether the tag was entered manually or generated automatically.",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status keeps unreviewed candidates out of active retrieval paths.",
+                    "type": "string"
                 },
                 "tenant_id": {
                     "description": "Workspace ID",
@@ -30810,8 +31385,16 @@ const docTemplate = `{
                     "description": "Optional display color",
                     "type": "string"
                 },
+                "confidence": {
+                    "description": "Confidence is the tag extractor's confidence in [0,1].",
+                    "type": "number"
+                },
                 "created_at": {
                     "description": "Creation time",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description is the optional semantic definition for automatic tags.",
                     "type": "string"
                 },
                 "id": {
@@ -30832,6 +31415,10 @@ const docTemplate = `{
                     "type": "string",
                     "x-agent": true
                 },
+                "normalized_name": {
+                    "description": "NormalizedName is the lowercase, trimmed lookup key for deduplication.",
+                    "type": "string"
+                },
                 "seq_id": {
                     "description": "SeqID is an auto-increment integer ID for external API usage",
                     "type": "integer",
@@ -30840,6 +31427,14 @@ const docTemplate = `{
                 "sort_order": {
                     "description": "Sort order within the same knowledge base",
                     "type": "integer"
+                },
+                "source": {
+                    "description": "Source records whether the tag was entered manually or generated automatically.",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status keeps unreviewed candidates out of active retrieval paths.",
+                    "type": "string"
                 },
                 "tenant_id": {
                     "description": "Workspace ID",
@@ -35135,6 +35730,14 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "default_settings": {
+                    "description": "Default settings: the workspace's default model for each type and purpose",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.DefaultSettings"
+                        }
+                    ]
+                },
                 "default_storage_backend_id": {
                     "description": "DefaultStorageBackendID is the workspace default concrete storage instance.",
                     "type": "string"
@@ -35509,6 +36112,59 @@ const docTemplate = `{
                 },
                 "total_tokens": {
                     "type": "integer"
+                }
+            }
+        },
+        "github_com_Tencent_WeKnora_internal_types.ToolApprovalRecord": {
+            "type": "object",
+            "properties": {
+                "approved": {
+                    "type": "boolean"
+                },
+                "args_json": {
+                    "type": "string"
+                },
+                "canceled": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "host": {
+                    "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.HostApprovalSnapshot"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "mcp_tool_name": {
+                    "type": "string"
+                },
+                "pending_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "requested_at": {
+                    "type": "integer"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "timed_out": {
+                    "type": "boolean"
+                },
+                "timeout_seconds": {
+                    "type": "integer"
+                },
+                "tool_call_id": {
+                    "type": "string"
                 }
             }
         },
@@ -37881,6 +38537,45 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_handler.CreateTagCandidateRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "confidence": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.CreateTagRelationRequest": {
+            "type": "object",
+            "required": [
+                "from_tag_id",
+                "relation_type",
+                "to_tag_id"
+            ],
+            "properties": {
+                "confidence": {
+                    "type": "number"
+                },
+                "from_tag_id": {
+                    "type": "string"
+                },
+                "relation_type": {
+                    "type": "string"
+                },
+                "to_tag_id": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_handler.CreateTagRequest": {
             "type": "object",
             "required": [
@@ -37948,6 +38643,14 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": true
                 }
+            }
+        },
+        "internal_handler.TagWikiSearchRequest": {
+            "type": "object",
+            "required": ["query"],
+            "properties": {
+                "query": {"type": "string"},
+                "top_k": {"type": "integer"}
             }
         },
         "internal_handler.DataResponse": {
@@ -40506,6 +41209,17 @@ const docTemplate = `{
                     "type": "integer",
                     "minimum": 0,
                     "x-agent": true
+                }
+            }
+        },
+        "internal_handler.ReviewTagCandidateRequest": {
+            "type": "object",
+            "required": [
+                "action"
+            ],
+            "properties": {
+                "action": {
+                    "type": "string"
                 }
             }
         },

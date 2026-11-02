@@ -153,8 +153,12 @@ func TestReleaseAPIContracts(t *testing.T) {
 				}
 			}
 			for path, methods := range map[string][]string{
-				"/knowledge/{id}/spans":               {"get"},
-				"/knowledge-bases/{id}/images":        {"get", "post"},
+				"/knowledge/{id}/spans":                                   {"get"},
+				"/knowledge-bases/{id}/images":                            {"get", "post"},
+				"/knowledge-bases/{id}/tags/candidates/{tag_id}/evidence": {"get"},
+				"/knowledge-bases/{id}/tags/{tag_id}/wiki":                {"get"},
+				"/knowledge-bases/{id}/tags/{tag_id}/wiki/generate":       {"post"},
+				"/knowledge-bases/{id}/tags/wiki/search":                  {"post"},
 				"/wiki-search":                        {"post"},
 				"/agents/tools":                       {"get"},
 				"/system/admin/users":                 {"get"},

@@ -381,6 +381,17 @@ type KnowledgeRepository interface {
 		kbID, knowledgeID string,
 		tagIDs []string,
 	) error
+	// PersistKnowledgeTagClassification atomically attaches active tags and
+	// upserts verified source-chunk evidence for active tags and pending
+	// candidates. Pending candidates get evidence rows but no document/tag
+	// relation until a reviewer approves them.
+	PersistKnowledgeTagClassification(
+		ctx context.Context,
+		tenantID uint64,
+		kbID, knowledgeID string,
+		activeBindings []types.KnowledgeTagBinding,
+		candidateBindings []types.KnowledgeTagBinding,
+	) error
 	// GetKnowledgeTags returns tags for multiple knowledge IDs.
 	GetKnowledgeTags(ctx context.Context, knowledgeIDs []string) (map[string][]*types.KnowledgeTag, error)
 	// DeleteKnowledgeTagRelations deletes all tag relations for a knowledge entry.

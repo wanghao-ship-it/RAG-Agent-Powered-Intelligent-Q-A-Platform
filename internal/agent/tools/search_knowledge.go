@@ -77,6 +77,12 @@ var searchKnowledgeTool = BaseTool{
       "items": { "type": "string" },
       "maxItems": 10
     },
+    "tag_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Optional tag IDs; narrows each in-scope knowledge base to documents carrying any requested tag",
+      "maxItems": 20
+    },
     "limit": {
       "type": "integer",
       "description": "Maximum chunks to return (default 10, max 30)",
@@ -93,6 +99,7 @@ type SearchKnowledgeInput struct {
 	Query            string   `json:"query"`
 	Mode             string   `json:"mode,omitempty"`
 	KnowledgeBaseIDs []string `json:"knowledge_base_ids,omitempty"`
+	TagIDs           []string `json:"tag_ids,omitempty"`
 	Limit            int      `json:"limit,omitempty"`
 }
 
@@ -226,6 +233,12 @@ func (t *SearchKnowledgeTool) Execute(ctx context.Context, args json.RawMessage)
 			Error:   "no knowledge base is in scope for this search",
 		}, fmt.Errorf("no search targets available")
 	}
+	if len(input.TagIDs) > 0 {
+		searchTargets = narrowSearchTargetsByTags(searchTargets, input.TagIDs)
+		if len(searchTargets) == 0 {
+			return &types.ToolResult{Success: false, Error: "requested tags are not available in the current search scope"}, fmt.Errorf("tag filter removed all search targets")
+		}
+	}
 
 	kbIDs := searchTargets.GetAllKnowledgeBaseIDs()
 	kbList, err := t.knowledgeBaseService.GetKnowledgeBasesByIDsOnly(ctx, kbIDs)
@@ -345,6 +358,41 @@ func (t *SearchKnowledgeTool) Execute(ctx context.Context, args json.RawMessage)
 		result.Output = emptySearchStatement(query, result.Data, len(kbIDs))
 	}
 	return result, nil
+}
+
+func narrowSearchTargetsByTags(targets types.SearchTargets, requested []string) types.SearchTargets {
+	wanted := make(map[string]struct{}, len(requested))
+	for _, id := range requested {
+		id = strings.TrimSpace(id)
+		if id != "" {
+			wanted[id] = struct{}{}
+		}
+	}
+	if len(wanted) == 0 {
+		return targets
+	}
+	out := make(types.SearchTargets, 0, len(targets))
+	for _, target := range targets {
+		if target == nil {
+			continue
+		}
+		clone := *target
+		if len(target.TagIDs) == 0 {
+			clone.TagIDs = append([]string(nil), requested...)
+		} else {
+			clone.TagIDs = nil
+			for _, id := range target.TagIDs {
+				if _, ok := wanted[id]; ok {
+					clone.TagIDs = append(clone.TagIDs, id)
+				}
+			}
+			if len(clone.TagIDs) == 0 {
+				continue
+			}
+		}
+		out = append(out, &clone)
+	}
+	return out
 }
 
 // splitKeptOutsideTopK separates the results kept outside the rerank top-k

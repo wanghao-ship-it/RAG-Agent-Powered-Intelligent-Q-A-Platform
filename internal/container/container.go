@@ -171,6 +171,9 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(repository.NewKnowledgeSpanRepository))
 	must(container.Provide(repository.NewChunkRepository))
 	must(container.Provide(repository.NewKnowledgeTagRepository))
+	must(container.Provide(repository.NewKnowledgeTagEdgeRepository))
+	must(container.Provide(repository.NewKnowledgeTagLifecycleRepository))
+	must(container.Provide(repository.NewKnowledgeTagWikiStateRepository))
 	must(container.Provide(repository.NewSessionRepository))
 	must(container.Provide(repository.NewMessageRepository))
 	must(container.Provide(repository.NewMessageSuggestionRepository))
@@ -271,6 +274,12 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewSpanTracker))
 	must(container.Provide(service.NewChunkService))
 	must(container.Provide(service.NewKnowledgeTagService))
+	must(container.Provide(service.NewKnowledgeTagEdgeService))
+	must(container.Provide(service.NewKnowledgeTagLifecycleService))
+	must(container.Provide(service.NewKnowledgeTagWikiService))
+	must(container.Provide(func(s interfaces.KnowledgeTagWikiService) interfaces.TaskHandler {
+		return s
+	}, dig.Name("tagWikiGenerate")))
 	must(container.Provide(embedding.NewBatchEmbedder))
 	must(container.Provide(service.NewModelService))
 	must(container.Provide(service.NewDatasetService))
@@ -803,6 +812,11 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	// persistence succeeded immediately before trigger enqueue failed). Re-arm
 	// them only after the matching handlers are ready.
 	must(container.Invoke(recoverPendingWikiTasks))
+	must(container.Invoke(func(s interfaces.KnowledgeTagWikiService) {
+		if err := s.Recover(context.Background()); err != nil {
+			logger.Warnf(context.Background(), "[TagWikiRecovery] failed to re-arm tag Wiki tasks: %v", err)
+		}
+	}))
 
 	// BrowserSkill is registered when its manager is constructed, which is
 	// early, so reverse-order cleanup would run it last. Force the manager

@@ -83,7 +83,8 @@ func (r *knowledgeTagRepository) GetBySeqIDs(ctx context.Context, tenantID uint6
 func (r *knowledgeTagRepository) GetByName(ctx context.Context, tenantID uint64, kbID string, name string) (*types.KnowledgeTag, error) {
 	var tag types.KnowledgeTag
 	if err := r.db.WithContext(ctx).
-		Where("tenant_id = ? AND knowledge_base_id = ? AND name = ?", tenantID, kbID, name).
+		Where("tenant_id = ? AND knowledge_base_id = ? AND normalized_name = ?",
+			tenantID, kbID, types.NormalizeKnowledgeTagName(name)).
 		First(&tag).Error; err != nil {
 		return nil, err
 	}
@@ -132,6 +133,48 @@ func (r *knowledgeTagRepository) ListByKB(
 		return nil, 0, err
 	}
 
+	return tags, total, nil
+}
+
+// ListByStatus returns tags in one KB lifecycle state, ordered for stable review.
+func (r *knowledgeTagRepository) ListByStatus(
+	ctx context.Context,
+	tenantID uint64,
+	kbID string,
+	status string,
+) ([]*types.KnowledgeTag, error) {
+	var tags []*types.KnowledgeTag
+	err := r.db.WithContext(ctx).
+		Where("tenant_id = ? AND knowledge_base_id = ? AND status = ?", tenantID, kbID, status).
+		Order("created_at ASC, seq_id ASC").Find(&tags).Error
+	return tags, err
+}
+
+// ListActiveByKB lists only approved tags for automatic document classification.
+func (r *knowledgeTagRepository) ListActiveByKB(
+	ctx context.Context,
+	tenantID uint64,
+	kbID string,
+	page *types.Pagination,
+) ([]*types.KnowledgeTag, int64, error) {
+	if page == nil {
+		page = &types.Pagination{}
+	}
+	base := r.db.WithContext(ctx).Model(&types.KnowledgeTag{}).
+		Where("tenant_id = ? AND knowledge_base_id = ? AND status = ?",
+			tenantID, kbID, types.KnowledgeTagStatusActive)
+	var total int64
+	if err := base.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	var tags []*types.KnowledgeTag
+	if err := r.db.WithContext(ctx).
+		Where("tenant_id = ? AND knowledge_base_id = ? AND status = ?",
+			tenantID, kbID, types.KnowledgeTagStatusActive).
+		Order("sort_order ASC, created_at DESC, seq_id DESC").
+		Offset(page.Offset()).Limit(page.Limit()).Find(&tags).Error; err != nil {
+		return nil, 0, err
+	}
 	return tags, total, nil
 }
 

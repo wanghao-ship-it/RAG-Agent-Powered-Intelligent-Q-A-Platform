@@ -85,7 +85,7 @@ func TestEveryAsynqTaskTypeHasADeclaredQueue(t *testing.T) {
 		TypeKnowledgeListReparse, TypeKnowledgeMove, TypeDataTableSummary,
 		TypeImageMultimodal, TypeKnowledgePostProcess, TypeKnowledgeAutoTag, TypeKnowledgeBaseProfile,
 		TypeManualProcess,
-		TypeDataSourceSync, TypeWikiIngest, TypeWikiFinalize, TypeTemporaryDocumentProcess,
+		TypeDataSourceSync, TypeWikiIngest, TypeWikiFinalize, TypeTagWikiGenerate, TypeTemporaryDocumentProcess,
 	}
 	for _, taskType := range taskTypes {
 		if _, ok := QueueForTaskType(taskType); !ok {

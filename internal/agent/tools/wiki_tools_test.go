@@ -285,6 +285,23 @@ func TestWikiSearchSharesRoutesWithWikiReadPage(t *testing.T) {
 	}
 }
 
+func TestWikiSearchTagWikiOnlyFiltersGeneratedPages(t *testing.T) {
+	tagPage := newTestWikiPage("kb-1", "tag/tag-1")
+	tagPage.PageMetadata = types.JSON([]byte(`{"kind":"tag_wiki","tag_id":"tag-1"}`))
+	ordinaryPage := newTestWikiPage("kb-1", "concept/ordinary")
+	service := &fakeWikiPageService{searchResults: map[string][]*types.WikiPage{
+		"kb-1": {ordinaryPage, tagPage},
+	}}
+	tool := NewWikiSearchTool(service, nil, NewWikiScopesFromKBIDs([]string{"kb-1"}), NewWikiRouteResolver())
+	result, err := tool.Execute(context.Background(), json.RawMessage(`{"query":".*","regex":true,"tag_wiki_only":true}`))
+	if err != nil || result == nil || !result.Success {
+		t.Fatalf("tag-wiki search failed: result=%+v err=%v", result, err)
+	}
+	if !strings.Contains(result.Output, "tag/tag-1") || strings.Contains(result.Output, "concept/ordinary") {
+		t.Fatalf("tag_wiki_only returned unexpected pages: %s", result.Output)
+	}
+}
+
 func TestWikiReadPageCachedRouteCannotHideDuplicateSlug(t *testing.T) {
 	slug := "concept/shared"
 	service := &fakeWikiPageService{pages: map[string]*types.WikiPage{

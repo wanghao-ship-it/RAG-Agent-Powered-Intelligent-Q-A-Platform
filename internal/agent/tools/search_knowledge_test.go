@@ -13,6 +13,26 @@ import (
 	"github.com/Tencent/WeKnora/internal/types"
 )
 
+func TestNarrowSearchTargetsByTags(t *testing.T) {
+	targets := types.SearchTargets{
+		{Type: types.SearchTargetTypeKnowledgeBase, KnowledgeBaseID: "kb-all"},
+		{Type: types.SearchTargetTypeKnowledgeBase, KnowledgeBaseID: "kb-scoped", TagIDs: []string{"tag-a"}},
+	}
+	got := narrowSearchTargetsByTags(targets, []string{"tag-b", "tag-a"})
+	if len(got) != 2 {
+		t.Fatalf("filtered target count = %d, want 2", len(got))
+	}
+	if len(got[0].TagIDs) != 2 || got[0].TagIDs[0] != "tag-b" {
+		t.Fatalf("unrestricted target tags = %#v", got[0].TagIDs)
+	}
+	if len(got[1].TagIDs) != 1 || got[1].TagIDs[0] != "tag-a" {
+		t.Fatalf("scoped target tags = %#v", got[1].TagIDs)
+	}
+	if len(targets[0].TagIDs) != 0 {
+		t.Fatal("tag narrowing must not mutate the original search target")
+	}
+}
+
 func TestNormalizeSearchMode(t *testing.T) {
 	for in, want := range map[string]string{
 		"": SearchModeHybrid, "hybrid": SearchModeHybrid,

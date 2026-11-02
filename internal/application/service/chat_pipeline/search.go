@@ -25,6 +25,8 @@ type PluginSearch struct {
 	sessionService        interfaces.SessionService
 	webSearchStateService interfaces.WebSearchStateService
 	webSearchProviderRepo interfaces.WebSearchProviderRepository
+	tagWikiService        interfaces.KnowledgeTagWikiService
+	graphSearchService    interfaces.GraphSearchService
 }
 
 func NewPluginSearch(eventManager *EventManager,
@@ -37,6 +39,8 @@ func NewPluginSearch(eventManager *EventManager,
 	sessionService interfaces.SessionService,
 	webSearchStateService interfaces.WebSearchStateService,
 	webSearchProviderRepo interfaces.WebSearchProviderRepository,
+	tagWikiService interfaces.KnowledgeTagWikiService,
+	graphSearchService interfaces.GraphSearchService,
 ) *PluginSearch {
 	res := &PluginSearch{
 		knowledgeBaseService:  knowledgeBaseService,
@@ -48,6 +52,8 @@ func NewPluginSearch(eventManager *EventManager,
 		sessionService:        sessionService,
 		webSearchStateService: webSearchStateService,
 		webSearchProviderRepo: webSearchProviderRepo,
+		tagWikiService:        tagWikiService,
+		graphSearchService:    graphSearchService,
 	}
 	eventManager.Register(res)
 	return res
@@ -92,18 +98,19 @@ func (p *PluginSearch) OnEvent(ctx context.Context,
 	})
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	allResults := make([]*types.SearchResult, 0)
+	var kbResults []*types.SearchResult
+	var webResults []*types.SearchResult
 	var kbSearchErr error
 
 	wg.Add(2)
 	// Goroutine 1: Knowledge base search using SearchTargets
 	go func() {
 		defer wg.Done()
-		kbResults, err := p.searchByTargets(ctx, chatManage)
+		results, err := p.searchByTargets(ctx, chatManage)
 		kbSearchErr = err
-		if len(kbResults) > 0 {
+		if len(results) > 0 {
 			mu.Lock()
-			allResults = append(allResults, kbResults...)
+			kbResults = append(kbResults, results...)
 			mu.Unlock()
 		}
 	}()
@@ -111,15 +118,24 @@ func (p *PluginSearch) OnEvent(ctx context.Context,
 	// Goroutine 2: Web search (if enabled)
 	go func() {
 		defer wg.Done()
-		webResults := p.searchWebIfEnabled(ctx, chatManage)
-		if len(webResults) > 0 {
+		results := p.searchWebIfEnabled(ctx, chatManage)
+		if len(results) > 0 {
 			mu.Lock()
-			allResults = append(allResults, webResults...)
+			webResults = append(webResults, results...)
 			mu.Unlock()
 		}
 	}()
 
 	wg.Wait()
+	augmented := p.searchFourWayChannels(ctx, chatManage)
+	if len(augmented.graph) > 0 || len(augmented.tagWiki) > 0 {
+		kbResults = fuseFourWayRRF([]retrievalChannel{
+			{Name: "knowledge_hybrid", Results: kbResults, Weight: 0.70},
+			{Name: "graph", Results: augmented.graph, Weight: 0.15},
+			{Name: "tag_wiki", Results: augmented.tagWiki, Weight: 0.15},
+		}, max(1, chatManage.EmbeddingTopK))
+	}
+	allResults := append(kbResults, webResults...)
 	if kbSearchErr != nil && len(allResults) == 0 {
 		pipelineError(ctx, "Search", "kb_search_failed", map[string]interface{}{
 			"error": kbSearchErr.Error(),

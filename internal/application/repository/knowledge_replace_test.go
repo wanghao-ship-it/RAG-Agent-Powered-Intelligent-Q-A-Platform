@@ -20,7 +20,11 @@ func replacementFixture(t *testing.T) (*gorm.DB, interfaces.KnowledgeRepository,
 	sqlDB, err := db.DB()
 	require.NoError(t, err)
 	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
-	require.NoError(t, db.AutoMigrate(&types.Knowledge{}, &types.KnowledgeTagRelation{}))
+	require.NoError(t, db.AutoMigrate(
+		&types.Knowledge{},
+		&types.KnowledgeTagRelation{},
+		&types.KnowledgeTagBinding{},
+	))
 	repo := NewKnowledgeRepository(db)
 	before := &types.Knowledge{
 		ID: "old", TenantID: 7, KnowledgeBaseID: "kb-1", Type: "file",
