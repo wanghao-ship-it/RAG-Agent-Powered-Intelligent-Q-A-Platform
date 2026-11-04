@@ -1,0 +1,2 @@
+{"id":"q1","query":"平台接入流程","relevant_ids":["doc-onboarding"],"expected_tags":["platform","onboarding"],"expected_pages":["tag-platform"],"citations":["doc-onboarding"]}
+{"id":"q2","query":"权限模型","relevant_ids":["doc-permission"],"expected_tags":["security"],"expected_pages":["tag-security"],"citations":["doc-permission"]}
